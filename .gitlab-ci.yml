@@ -8,6 +8,7 @@ build:
     script:
         - echo "Building"
         - pip3 install --upgrade pip
+        - pip3 install Flask
         - python3 app.py
 
 test:
