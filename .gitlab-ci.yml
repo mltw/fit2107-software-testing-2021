@@ -9,6 +9,9 @@ build:
         - echo "Building"
         - pip3 install --upgrade pip
         - pip3 install Flask
+        - pip3 install flask_wtf
+        - pip3 install wtforms
+        - pip3 install wtforms.validators
         - python3 app.py
 
 test:
