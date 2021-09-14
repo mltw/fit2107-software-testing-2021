@@ -43,7 +43,18 @@ class TestCalculator(unittest.TestCase):
     def test_peak_period(self):
         self.calculator = Calculator(5000,"14/09/2021")
         self.assertEqual(self.calculator.peak_period("17:50",7,83,56,36),14)
+        # test multiple days charging
+        self.assertEqual(self.calculator.peak_period("17:50",0,100,56,3.6),22)
+        # test multiple days charging
+        self.assertEqual(self.calculator.peak_period("17:50",0,100,100,0.8),48)
         self.assertEqual(self.calculator.peak_period("14:50",7,83,56,36),100)
+
+        # test starting from non-peak (6am) ends on peak on same day
+        self.assertEqual(self.calculator.peak_period("05:50",7,83,56,36),int((self.calculator.time_calculation(7,83,56,36)+5.83333 - 6.0)*100/self.calculator.time_calculation(7,83,56,36)))
+        # test starting from non-peak (6pm) ends on non-peak on same day
+        self.assertEqual(self.calculator.peak_period("18:00",7,83,56,36),0)
+        # test starting from non-peak (4am) ends on non-peak on same day
+        self.assertEqual(self.calculator.peak_period("18:50",7,83,56,36),0)
 
     # you may create test suite if needed
     if __name__ == "__main__":

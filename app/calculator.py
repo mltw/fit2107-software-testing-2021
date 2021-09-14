@@ -60,29 +60,76 @@ class Calculator():
         given_time = int(start_time[0:2])*60 +  int(start_time[3:5])
         expected_period = self.time_calculation(initial_state,final_state,capacity,power) * 60
         expected_end = given_time + expected_period
-        hour = int(expected_end // 60)
-        minute = int(expected_end % 60)
-        end_time = time(hour,minute)
-        if end_time <= time(18,0):
-            return 100
+        new_start_time = int(start_time[0:2]) * 60 + int(start_time[3:5])
+        total_peak_time = 0
+        if(self.is_peak(start_time)):
+            if expected_end <= 18*60:
+                return 100
+            else :
+                time_diff = expected_end - 18*60
+                total_peak_time = expected_period - time_diff
         else :
-            time_diff = expected_end - 18*60
-            return int((expected_period - time_diff)*100/expected_period)
+            if new_start_time < 6*60:
+                if expected_end < 6*60 :
+                    return 0
+                elif expected_end > 18*60:
+                    total_peak_time = 12*60
+                elif expected_end <= 18*60:
+                    total_peak_time = expected_end - 6*60
+                else :
+                    raise Exception("the expected in not peak before 6am is wrong")
+            elif new_start_time > 18*60:
+                if expected_end > 18*60 :
+                    total_peak_time = 0
+                else:
+                    raise Exception("the expected is wrong, it cannot be less than the start_time")
+
+        if expected_end > 24*60 :
+            expected_end -= 24*60
+            while expected_end > 24*60 :
+                total_peak_time += 12*60
+                expected_end -= 24*60
+
+            hour = int(expected_end // 60)
+            minute = int(expected_end % 60)
+            end_time = time(hour,minute)
+            if not end_time < time(6,0) :
+                if end_time > time(18,0):
+                    total_peak_time += 12*60
+                else:
+                    total_peak_time+= expected_end - 6*60
+        return int(total_peak_time*100/expected_period)
 
     def get_duration(self, start_time):
         pass
 
     # to be acquired through API
-    def get_sun_hour(self, sun_hour):
-        return self.weather_data['sunHours']
+    def get_sun_hour(self):
+        self.sun_hour = self.weather_data['sunHours']
+        return self.sun_hour
 
     # to be acquired through API
     def get_solar_energy_duration(self, start_time):
+        (sr,ss) = self.get_day_light_length(start_time)
+        si = self.get_sun_hour(self)
+        sunrise_hour = int(sr[0:2])
+        sunrise_minute = int(sr[3:5])
+
+        sunset_hour = int(ss[0:2])
+        sunset_minute = int(ss[3:5])
+
+        start_time_hour = int(start_time[0:2])
+        start_time_minute = int(start_time[3:5])
+        self.time_calculation()
+        dl =  sunset_hour+(sunset_minute/60) - sunrise_hour+(sunrise_minute/60)
+
         pass
 
     # to be acquired through API
     def get_day_light_length(self, start_time):
-        pass
+        self.sunrise_time = self.weather_data['sunrise']
+        self.sunset_time = self.weather_data['sunset']
+        return (self.sunrise_time,self.sunset_time)
 
     # to be acquired through API
     def get_solar_insolation(self, solar_insolation):
