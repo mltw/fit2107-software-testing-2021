@@ -1,0 +1,23 @@
+stages:
+    - build
+    - test
+
+build:
+    stage: build
+    image: python:3.8-alpine
+    script:
+        - echo "Building"
+        - pip3 install --upgrade pip
+        - pip3 install Flask
+        - pip3 install flask_wtf
+        - pip3 install wtforms
+        - pip3 install wtforms.validators
+        - python3 ./app/calculator.py
+
+test:
+    stage: test
+    image: python:3.8-alpine
+    script:
+        - echo "Testing"
+        - pip3 install --upgrade pip
+        - python3 -m test.pyunittest
