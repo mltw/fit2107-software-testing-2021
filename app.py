@@ -29,12 +29,13 @@ def operation_result():
         final_charge = request.form['FinalCharge']
         start_date = request.form['StartDate']
         start_time = request.form['StartTime']
+        post_code = request.form["ChargerConfiguration"]
         charger_configuration = request.form['ChargerConfiguration']
 
         # you may change the logic as your like
         duration = calculator.get_duration(start_time)
 
-        is_peak = calculator.is_peak()
+        is_peak = calculator.is_peak(start_time)
 
         if is_peak:
             peak_period = calculator.peak_period(start_date)
