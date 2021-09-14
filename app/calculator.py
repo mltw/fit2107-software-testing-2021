@@ -111,7 +111,7 @@ class Calculator():
     # to be acquired through API
     def get_solar_energy_duration(self, start_time):
         (sr,ss) = self.get_day_light_length(start_time)
-        si = self.get_sun_hour(self)
+        si = self.get_sun_hour()
         sunrise_hour = int(sr[0:2])
         sunrise_minute = int(sr[3:5])
 
@@ -120,9 +120,8 @@ class Calculator():
 
         start_time_hour = int(start_time[0:2])
         start_time_minute = int(start_time[3:5])
-        self.time_calculation()
+        # self.time_calculation()
         dl =  sunset_hour+(sunset_minute/60) - sunrise_hour+(sunrise_minute/60)
-
         pass
 
     # to be acquired through API
