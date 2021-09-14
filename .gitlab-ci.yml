@@ -1,0 +1,41 @@
+stages:
+    - build
+    - test
+
+build:
+    stage: build
+    image: python:3.8-alpine
+    script:
+        - echo "Building"
+        - pip3 install --upgrade pip
+#        - pip3 install Flask
+#        - pip3 install flask_wtf
+#        - pip3 install wtforms
+        - pip3 install -r requirements.txt
+        - pip3 install wtforms.validators
+        - pip3 install holidays
+        - pip3 install datetime
+        - pip3 install requests
+        - pip3 install simplejson
+#        - python3 ./app/calculator_form.py
+
+test:
+    stage: test
+    image: python:3.8-alpine
+    script:
+        - echo "Testing"
+        - pip3 install --upgrade pip
+        - pip3 install -r requirements.txt
+        - pip3 install wtforms.validators
+        - pip3 install holidays
+        - pip3 install datetime
+        - pip3 install requests
+        - pip3 install simplejson
+#        - python3 -m test.pyunittest
+#        - python3 -m unittest test/pyunittest.py
+        - coverage run --source=app --branch -m unittest test/pyunittest.py
+        - coverage report -m
+        - coverage html -d coverage_reports
+    artifacts:
+        paths:
+            - coverage_reports/
