@@ -26,5 +26,10 @@ test:
         - echo "Testing"
         - pip3 install --upgrade pip
         - pip3 install -r requirements.txt
+        - pip3 install wtforms.validators
+        - pip3 install holidays
+        - pip3 install datetime
+        - pip3 install requests
+        - pip3 install simplejson
 #        - python3 -m test.pyunittest
         - python3 -m unittest test/pyunittest.py
