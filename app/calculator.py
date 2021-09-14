@@ -24,9 +24,11 @@ class Calculator():
         self.weather_data = weather_r.json()
 
     # you may add more parameters if needed, you may modify the formula also.
-    def cost_calculation(self, initial_state, final_state, capacity, is_peak, is_holiday,base_price):
-        if not is_peak:
-            base_price = base_price * 0.5
+    def cost_calculation(self, initial_state, final_state, capacity, peak_period, is_holiday,base_price):
+        assert peak_period >= 0 and peak_period <= 100 , "Please provide a valid peak_period, must be between 0 and 100"
+        non_peak = 0.5*(1-(peak_period/100))
+        peak = (1*(peak_period/100))
+        base_price =base_price*(non_peak+peak)
 
         if is_holiday:
             surcharge_factor = 1.1
@@ -54,8 +56,18 @@ class Calculator():
         non_peak_time_2 = time(18,0)
         return non_peak_time_1 <= date_time_obj <= non_peak_time_2
 
-    def peak_period(self, start_time):
-        pass
+    def peak_period(self, start_time,initial_state, final_state, capacity,power):
+        given_time = int(start_time[0:2])*60 +  int(start_time[3:5])
+        expected_period = self.time_calculation(initial_state,final_state,capacity,power) * 60
+        expected_end = given_time + expected_period
+        hour = int(expected_end // 60)
+        minute = int(expected_end % 60)
+        end_time = time(hour,minute)
+        if end_time <= time(18,0):
+            return 100
+        else :
+            time_diff = expected_end - 18*60
+            return int((expected_period - time_diff)*100/expected_period)
 
     def get_duration(self, start_time):
         pass
@@ -126,3 +138,5 @@ class Calculator():
             return 50
         else :
             raise Exception("NO SUCH CONFIGURATION")
+
+

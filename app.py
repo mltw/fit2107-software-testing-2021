@@ -39,14 +39,14 @@ def operation_result():
 
         is_peak = calculator.is_peak(start_time)
         print("is_peak : " , is_peak)
-
+        peak_period = 0
         if is_peak:
-            peak_period = calculator.peak_period(start_date)
-
+            peak_period = calculator.peak_period(start_time,initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
+            print(peak_period)
         is_holiday = calculator.is_holiday(start_date)
         print("is_holiday : ", is_holiday)
 
-        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, is_peak, is_holiday, calculator.get_price(charger_configuration))
+        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, peak_period, is_holiday, calculator.get_price(charger_configuration))
 
         time = calculator.time_calculation(initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
 

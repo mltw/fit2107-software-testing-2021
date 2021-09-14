@@ -10,9 +10,11 @@ class TestCalculator(unittest.TestCase):
     def test_cost(self):
         self.calculator = Calculator(5000,"14/09/2021")
         # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
-        self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, True, True,7.5),2), 0.28)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, True, False,20),2), 8.51)
-        pass
+        self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 100, True,7.5),2), 0.28)
+        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 100, False,20),2), 8.51)
+        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 0, False,20),2), 4.26)
+        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 14, False,20),2), 4.85)
+        self.assertRaises(AssertionError , self.calculator.cost_calculation ,7, 83, 56, -14, False,20)
 
     def test_time(self):
         self.calculator = Calculator(5000,"14/09/2021")
@@ -37,6 +39,11 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.is_peak("18:00"),True)
         self.assertEqual(self.calculator.is_peak("05:59"),False)
         self.assertEqual(self.calculator.is_peak("18:01"),False)
+
+    def test_peak_period(self):
+        self.calculator = Calculator(5000,"14/09/2021")
+        self.assertEqual(self.calculator.peak_period("17:50",7,83,56,36),14)
+        self.assertEqual(self.calculator.peak_period("14:50",7,83,56,36),100)
 
     # you may create test suite if needed
     if __name__ == "__main__":
