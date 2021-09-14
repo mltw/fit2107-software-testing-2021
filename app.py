@@ -20,8 +20,6 @@ def operation_result():
 
     # validation of the form
     if request.method == "POST" and calculator_form.validate():
-        # if valid, create calculator to calculate the time and cost
-        calculator = Calculator()
 
         # extract information from the form
         battery_capacity = request.form['BatteryPackCapacity']
@@ -29,28 +27,34 @@ def operation_result():
         final_charge = request.form['FinalCharge']
         start_date = request.form['StartDate']
         start_time = request.form['StartTime']
-        post_code = request.form["ChargerConfiguration"]
+        post_code = request.form["PostCode"]
         charger_configuration = request.form['ChargerConfiguration']
+
+        # if valid, create calculator to calculate the time and cost
+        calculator = Calculator(post_code,start_date)
+
 
         # you may change the logic as your like
         duration = calculator.get_duration(start_time)
 
         is_peak = calculator.is_peak(start_time)
+        print("is_peak : " , is_peak)
 
         if is_peak:
             peak_period = calculator.peak_period(start_date)
 
         is_holiday = calculator.is_holiday(start_date)
+        print("is_holiday : ", is_holiday)
 
-        # cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, is_peak, is_holiday)
+        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, is_peak, is_holiday, calculator.get_price(charger_configuration))
 
-        # time = calculator.time_calculation(initial_charge, final_charge, battery_capacity, power)
+        time = calculator.time_calculation(initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
 
         # you may change the return statement also
         
         # values of variables can be sent to the template for rendering the webpage that users will see
-        # return render_template('calculator.html', cost = cost, time = time, calculation_success = True, form = calculator_form)
-        return render_template('calculator.html', calculation_success=True, form=calculator_form)
+        return render_template('calculator.html', cost = cost, time = time, calculation_success = True, form = calculator_form)
+        # return render_template('calculator.html', calculation_success=True, form=calculator_form)
 
     else:
         # battery_capacity = request.form['BatteryPackCapacity']

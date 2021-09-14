@@ -5,27 +5,40 @@ import json
 from datetime import time
 class Calculator():
     # you can choose to initialise variables here, if needed.
-    def __init__(self):
-        pass
+    def __init__(self, postcode, date):
+        location_link = "http://118.138.246.158/api/v1/location"
+        postcode = str(postcode)
+        postcode_PARAMS = {'postcode':postcode}
+        location_r = requests.get(url=location_link,params=postcode_PARAMS)
+        location_data = location_r.json()
+
+        weather_link = "http://118.138.246.158/api/v1/weather"
+        location_id = location_data[0]['id']
+        date_time_obj = datetime.datetime.strptime(date, '%d/%m/%Y')
+        month = str(date_time_obj.month)
+        if len(month) != 2 :
+            month = "0" + month
+        new_date = str(date_time_obj.year) +  "-" + month + "-" + str(date_time_obj.day)
+        weather_PARAMS = {'location' : location_id, 'date': new_date}
+        weather_r = requests.get(url=weather_link,params=weather_PARAMS)
+        self.weather_data = weather_r.json()
 
     # you may add more parameters if needed, you may modify the formula also.
-    def cost_calculation(self, initial_state, final_state, capacity, is_peak, is_holiday):
-        if is_peak:
-            base_price = 7.5
-        else:
-            base_price = 7.5*0.5
+    def cost_calculation(self, initial_state, final_state, capacity, is_peak, is_holiday,base_price):
+        if not is_peak:
+            base_price = base_price * 0.5
 
         if is_holiday:
             surcharge_factor = 1.1
         else:
             surcharge_factor = 1
 
-        cost = (final_state - initial_state) / 100 * capacity * base_price / 100 * surcharge_factor
+        cost = (int(final_state) - int(initial_state)) / 100 * int(capacity) * base_price / 100 * surcharge_factor
         return cost
 
     # you may add more parameters if needed, you may also modify the formula.
     def time_calculation(self, initial_state, final_state, capacity, power):
-        time = (final_state - initial_state) / 100 * capacity / power
+        time = (int(final_state) - int(initial_state)) / 100 * int(capacity) / power
         return time
 
 
@@ -47,27 +60,9 @@ class Calculator():
     def get_duration(self, start_time):
         pass
 
-    def get_postcode_id(self,postcode):
-        link = "http://118.138.246.158/api/v1/location"
-        postcode = str(postcode)
-        PARAMS = {'postcode':postcode}
-        r = requests.get(url=link,params=PARAMS)
-        data = r.json()
-        return data[0]['id']
-
-    def get_weather_data(self,postcode,date):
-        link = "http://118.138.246.158/api/v1/weather"
-        id = self.get_postcode_id(postcode)
-        date_time_obj = datetime.datetime.strptime(date, '%d/%m/%Y')
-        new_date = str(date_time_obj.year) +  "-" + str(date_time_obj.month) + "-" + str(date_time_obj.day)
-        PARAMS = {'location' : id, 'date': new_date}
-        r = requests.get(url=link,params=PARAMS)
-        data = r.json()
-        return data
-
     # to be acquired through API
     def get_sun_hour(self, sun_hour):
-        pass
+        return self.weather_data['sunHours']
 
     # to be acquired through API
     def get_solar_energy_duration(self, start_time):
@@ -89,3 +84,45 @@ class Calculator():
         pass
 
 
+    # Additional new function
+    def get_power(self,charger_configuration):
+        charger_configuration = int(charger_configuration)
+        if charger_configuration == 1:
+            return 2.0
+        elif charger_configuration == 2:
+            return 3.6
+        elif charger_configuration == 3:
+            return 7.2
+        elif charger_configuration == 4:
+            return 11
+        elif charger_configuration == 5:
+            return 22
+        elif charger_configuration == 6:
+            return 36
+        elif charger_configuration == 7:
+            return 90
+        elif charger_configuration == 8:
+            return 350
+        else :
+            raise Exception("NO SUCH CONFIGURATION")
+
+    def get_price(self,charger_configuration):
+        charger_configuration = int(charger_configuration)
+        if charger_configuration == 1:
+            return 5.0
+        elif charger_configuration == 2:
+            return 7.5
+        elif charger_configuration == 3:
+            return 10
+        elif charger_configuration == 4:
+            return 12.5
+        elif charger_configuration == 5:
+            return 15
+        elif charger_configuration == 6:
+            return 20
+        elif charger_configuration == 7:
+            return 30
+        elif charger_configuration == 8:
+            return 50
+        else :
+            raise Exception("NO SUCH CONFIGURATION")
