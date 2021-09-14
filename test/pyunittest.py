@@ -54,7 +54,41 @@ class TestCalculator(unittest.TestCase):
         # test starting from non-peak (6pm) ends on non-peak on same day
         self.assertEqual(self.calculator.peak_period("18:00",7,83,56,36),0)
         # test starting from non-peak (4am) ends on non-peak on same day
-        self.assertEqual(self.calculator.peak_period("18:50",7,83,56,36),0)
+        self.assertEqual(self.calculator.peak_period("01:50",7,83,56,36),0)
+        # test starting from non-peak (6am) ends on peak on different day
+        total = self.calculator.time_calculation(0,100,100,0.8)
+        total_time = (self.calculator.time_calculation(0,100,100,0.8)+5.83333) - 24
+        day = total_time//24
+        remained_time = (total_time)%24
+        add = 0
+        if remained_time >= 18:
+            add = 12
+        else :
+            if remained_time < 6 :
+                add = 0
+            else:
+                add = remained_time - 6
+        self.assertEqual(self.calculator.peak_period("05:50",0,100,100,0.8),int((12+day*12+add)*100/total))
+        # test starting from non-peak (6pm) ends on peak on different day
+        total = self.calculator.time_calculation(0,100,100,0.8)
+        total_time = (self.calculator.time_calculation(0,100,100,0.8)+18) - 24
+        day = total_time//24
+        remained_time = (total_time)%24
+        add = 0
+        if remained_time >= 18:
+            add = 12
+        else :
+            if remained_time < 6 :
+                add = 0
+            else:
+                add = remained_time - 6
+        self.assertEqual(self.calculator.peak_period("18:00",0,100,100,0.8),int((0+day*12+add)*100/total))
+        # test starting from non-peak (6am) ends on non_peak on different day
+        # test starting from non-peak (6pm) ends on non_peak on different day
+        # test starting from peak ends on non_peak on same day
+        # test starting from peak ends on peak on same day
+        # test starting from peak ends on non_peak on different day
+        # test starting from peak ends on peak on different day
 
     # you may create test suite if needed
     if __name__ == "__main__":
