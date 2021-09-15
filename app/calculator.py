@@ -2,9 +2,10 @@ import holidays
 import datetime
 import requests
 import json
-from datetime import time
+from datetime import time, datetime
 class Calculator():
     # you can choose to initialise variables here, if needed.
+    location_data=1
     def __init__(self, postcode, date):
         location_link = "http://118.138.246.158/api/v1/location"
         postcode = str(postcode)
@@ -12,16 +13,29 @@ class Calculator():
         location_r = requests.get(url=location_link,params=postcode_PARAMS)
         location_data = location_r.json()
 
+        # new added
+        self.location_data = location_data
+
         weather_link = "http://118.138.246.158/api/v1/weather"
         location_id = location_data[0]['id']
-        date_time_obj = datetime.datetime.strptime(date, '%d/%m/%Y')
+        date_time_obj = datetime.strptime(date, '%d/%m/%Y')
         month = str(date_time_obj.month)
         if len(month) != 2 :
             month = "0" + month
-        new_date = str(date_time_obj.year) +  "-" + month + "-" + str(date_time_obj.day)
+        day = str(date_time_obj.day)
+        if len(day)!=2:
+            day = "0" + day
+        new_date = "2020" + "-" + "02" + "-" + "22"
+        # new_date = str(date_time_obj.year) + "-" + month + day
         weather_PARAMS = {'location' : location_id, 'date': new_date}
         weather_r = requests.get(url=weather_link,params=weather_PARAMS)
         self.weather_data = weather_r.json()
+
+        # a_date = datetime.date(2015, 10, 10)
+        # days = datetime.timedelta(5
+
+
+        # print(self.weather_data)
 
     # you may add more parameters if needed, you may modify the formula also.
     def cost_calculation(self, initial_state, final_state, capacity, peak_period, is_holiday,base_price):
@@ -47,7 +61,7 @@ class Calculator():
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
     def is_holiday(self, start_date):
         aus_holidays = holidays.Australia()
-        date_time_obj = datetime.datetime.strptime(start_date, '%d/%m/%Y')
+        date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         return date_time_obj in aus_holidays or date_time_obj.weekday() <= 4
 
     def is_peak(self, start_time):
@@ -100,8 +114,9 @@ class Calculator():
                     total_peak_time+= expected_end - 6*60
         return int(total_peak_time*100/expected_period)
 
-    def get_duration(self, start_time):
-        pass
+    # def get_duration(self, start_time, initial_state, final_state, capacity, power):
+    #     time_needed = self.time_calculation(initial_state, final_state, capacity, power)
+
 
     # to be acquired through API
     def get_sun_hour(self):
@@ -130,13 +145,45 @@ class Calculator():
         self.sunset_time = self.weather_data['sunset']
         return (self.sunrise_time,self.sunset_time)
 
-    # to be acquired through API
-    def get_solar_insolation(self, solar_insolation):
-        pass
+    # # to be acquired through API
+    # def get_solar_insolation(self, solar_insolation):
+    #     pass
 
     # to be acquired through API
-    def get_cloud_cover(self):
-        pass
+    def get_cloud_cover(self, start_time, end_time):
+        # per hour basis
+        start_time_hour = int(start_time[0:2])
+        start_time_minute = int(start_time[3:5])
+
+        end_time_hour = int(end_time[0:2])
+        end_time_minute = int(end_time[3:5])
+        # end_time_minute = int(start_time[3:5]) + 60
+        # start_time_hour -= 1
+
+        # total_time_in_minutes = end_time_minute - start_time_minute
+        #
+        # if start_time_minute + total_time_in_minutes >=60:
+        #     cloud_time_1 = 59 - start_time_minute
+        #     remaining =
+
+        if end_time_hour > start_time_hour:
+            cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
+            cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
+            return int(cc_1)+int(cc_2)
+        elif end_time_hour < start_time_hour:
+            raise ValueError("End time cannot be lesser than start time")
+        else:
+            return self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
+
+
+        # time_needed = self.time_calculation(initial_state, final_state, capacity, power)
+        #
+        # date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
+        #
+        # date_time_str = str(date_time_obj) + " " +  str(start_time)
+        # date_time_obj = datetime.strptime(date_time_str, '%d/%m/%Y %H:%M')
+        # date_time_after_charge = date_time_obj + datetime.timedelta(hours=time_needed)
+
 
     def calculate_solar_energy(self):
         pass

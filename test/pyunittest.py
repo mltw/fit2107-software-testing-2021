@@ -8,8 +8,10 @@ class TestCalculator(unittest.TestCase):
     # you may add parameters to test methods
     # this is an example
     def test_cost(self):
+
         self.calculator = Calculator(5000,"14/09/2021")
         self.calculator = Calculator(5000,"14/9/2021")
+        print(self.calculator.weather_data)
         # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
         self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 100, True,7.5),2), 0.28)
         self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 100, False,20),2), 8.51)
@@ -104,9 +106,9 @@ class TestCalculator(unittest.TestCase):
         # test starting from peak ends on non_peak on different day
         # test starting from peak ends on peak on different day
 
-    def test_get_duration(self):
-        self.calculator = Calculator(5000,"14/09/2021")
-        self.calculator.get_duration("18:01")
+    # def test_get_duration(self):
+    #     self.calculator = Calculator(5000,"14/09/2021")
+    #     self.calculator.get_duration("18:01")
 
     def test_get_sun_hour(self):
         self.calculator = Calculator(5000,"10/09/2021")
@@ -143,6 +145,13 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_price(6),20)
         self.assertEqual(self.calculator.get_price(7),30)
         self.assertEqual(self.calculator.get_price(8),50)
-        # you may create test suite if needed
+
+    def test_get_cloud_cover(self):
+        self.calculator = Calculator(5000, "22/02/2020")
+        self.assertEqual(self.calculator.get_cloud_cover("17:30", "18:15"), 1)
+        self.assertEqual(self.calculator.get_cloud_cover("17:30", "17:59"), 1)
+        self.assertEqual(self.calculator.get_cloud_cover("18:00", "18:26"), 0)
+        self.assertEqual(self.calculator.get_cloud_cover("00:00", "00:59"), 0)
+
     if __name__ == "__main__":
         pass
