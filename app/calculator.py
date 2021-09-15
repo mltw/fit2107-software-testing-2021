@@ -5,19 +5,16 @@ import json
 from datetime import time, datetime
 class Calculator():
     # you can choose to initialise variables here, if needed.
-    location_data=1
+
     def __init__(self, postcode, date):
         location_link = "http://118.138.246.158/api/v1/location"
         postcode = str(postcode)
         postcode_PARAMS = {'postcode':postcode}
         location_r = requests.get(url=location_link,params=postcode_PARAMS)
-        location_data = location_r.json()
+        self.location_data = location_r.json()
 
-        # new added
-        self.location_data = location_data
-
-        weather_link = "http://118.138.246.158/api/v1/weather"
-        location_id = location_data[0]['id']
+        self.weather_link = "http://118.138.246.158/api/v1/weather"
+        self.location_id = self.location_data[0]['id']
         date_time_obj = datetime.strptime(date, '%d/%m/%Y')
         month = str(date_time_obj.month)
         if len(month) != 2 :
@@ -27,9 +24,9 @@ class Calculator():
             day = "0" + day
         new_date = "2020" + "-" + "02" + "-" + "22"
         # new_date = str(date_time_obj.year) + "-" + month + day
-        weather_PARAMS = {'location' : location_id, 'date': new_date}
-        weather_r = requests.get(url=weather_link,params=weather_PARAMS)
-        self.weather_data = weather_r.json()
+        self.weather_PARAMS = {'location' : self.location_id, 'date': new_date}
+        self.weather_r = requests.get(url=self.weather_link,params=self.weather_PARAMS)
+        self.weather_data = self.weather_r.json()
 
         # a_date = datetime.date(2015, 10, 10)
         # days = datetime.timedelta(5
@@ -150,31 +147,49 @@ class Calculator():
     #     pass
 
     # to be acquired through API
-    def get_cloud_cover(self, start_time, end_time):
+    def get_cloud_cover(self, start_date, start_time, end_date, end_time):
         # per hour basis
         start_time_hour = int(start_time[0:2])
-        start_time_minute = int(start_time[3:5])
-
         end_time_hour = int(end_time[0:2])
-        end_time_minute = int(end_time[3:5])
-        # end_time_minute = int(start_time[3:5]) + 60
-        # start_time_hour -= 1
 
-        # total_time_in_minutes = end_time_minute - start_time_minute
-        #
-        # if start_time_minute + total_time_in_minutes >=60:
-        #     cloud_time_1 = 59 - start_time_minute
-        #     remaining =
+        # only for case when charging hour spans through midnight, ie 23:xx to 00:xx,
+        # since this method is just to calculate each hour's cloud coverage
+        if start_date != end_date:
+            self.weather_link = "http://118.138.246.158/api/v1/weather"
+            self.location_id = self.location_data[0]['id']
 
-        if end_time_hour > start_time_hour:
+            year = str(start_date)[6:10]
+            month = str(start_date)[3:5]
+            day = str(start_date)[0:2]
+            date_1 = year + "-" + month + "-" + day
+            self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
+            self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
+            self.weather_data = self.weather_r.json()
+            print(self.weather_data)
+
             cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
-            cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
-            return int(cc_1)+int(cc_2)
-        elif end_time_hour < start_time_hour:
-            raise ValueError("End time cannot be lesser than start time")
-        else:
-            return self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
 
+            year = str(end_date)[6:10]
+            month = str(end_date)[3:5]
+            day = str(end_date)[0:2]
+            date_2 = year + "-" + month + "-" + day
+            self.weather_PARAMS = {'location': self.location_id, 'date': date_2}
+            self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
+            self.weather_data = self.weather_r.json()
+            print(self.weather_data)
+
+            cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
+
+            return cc_1 + cc_2
+        else:
+            if end_time_hour > start_time_hour:
+                cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
+                cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
+                return int(cc_1)+int(cc_2)
+            elif end_time_hour < start_time_hour:
+                raise ValueError("End time cannot be lesser than start time")
+            else:
+                return self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
 
         # time_needed = self.time_calculation(initial_state, final_state, capacity, power)
         #

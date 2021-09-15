@@ -148,10 +148,11 @@ class TestCalculator(unittest.TestCase):
 
     def test_get_cloud_cover(self):
         self.calculator = Calculator(5000, "22/02/2020")
-        self.assertEqual(self.calculator.get_cloud_cover("17:30", "18:15"), 1)
-        self.assertEqual(self.calculator.get_cloud_cover("17:30", "17:59"), 1)
-        self.assertEqual(self.calculator.get_cloud_cover("18:00", "18:26"), 0)
-        self.assertEqual(self.calculator.get_cloud_cover("00:00", "00:59"), 0)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "17:30", "22/02/2020", "18:15"), 1)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "17:30", "22/02/2020", "17:59"), 1)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "18:00", "22/02/2020", "18:26"), 0)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "00:00", "22/02/2020", "00:59"), 0)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "23:15", "23/02/2020", "00:15"), 0)
 
     if __name__ == "__main__":
         pass
