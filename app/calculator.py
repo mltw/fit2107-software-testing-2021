@@ -122,25 +122,50 @@ class Calculator():
 
     # to be acquired through API
     def get_solar_energy_duration(self, start_time):
-        (sr,ss) = self.get_day_light_length(start_time)
-        si = self.get_sun_hour()
-        sunrise_hour = int(sr[0:2])
-        sunrise_minute = int(sr[3:5])
-
-        sunset_hour = int(ss[0:2])
-        sunset_minute = int(ss[3:5])
-
-        start_time_hour = int(start_time[0:2])
-        start_time_minute = int(start_time[3:5])
-        # self.time_calculation()
-        dl =  sunset_hour+(sunset_minute/60) - sunrise_hour+(sunrise_minute/60)
+        # (sr,ss) = self.get_day_light_length(start_time)
+        # si = self.get_sun_hour()
+        # sunrise_hour = int(sr[0:2])
+        # sunrise_minute = int(sr[3:5])
+        #
+        # sunset_hour = int(ss[0:2])
+        # sunset_minute = int(ss[3:5])
+        #
+        # start_time_hour = int(start_time[0:2])
+        # start_time_minute = int(start_time[3:5])
+        # # self.time_calculation()
+        # dl =  sunset_hour+(sunset_minute/60) - sunrise_hour+(sunrise_minute/60)
         pass
 
     # to be acquired through API
-    def get_day_light_length(self, start_time):
-        self.sunrise_time = self.weather_data['sunrise']
-        self.sunset_time = self.weather_data['sunset']
-        return (self.sunrise_time,self.sunset_time)
+    def get_day_light_length(self, start_date):
+        # per day basis
+        self.weather_link = "http://118.138.246.158/api/v1/weather"
+        self.location_id = self.location_data[0]['id']
+
+        year = str(start_date)[6:10]
+        month = str(start_date)[3:5]
+        day = str(start_date)[0:2]
+        date_1 = year + "-" + month + "-" + day
+        self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
+        self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
+        self.weather_data = self.weather_r.json()
+
+        sunrise_time = self.weather_data['sunrise']
+        sunset_time = self.weather_data['sunset']
+
+        sunrise_hour = int(sunrise_time[0:2])
+        sunrise_minute = int(sunrise_time[3:5])
+
+        sunset_hour = int(sunset_time[0:2])
+        sunset_minute = int(sunset_time[3:5])
+
+        if sunset_minute < sunrise_minute:
+            sunset_minute += 60
+            sunset_hour -= 1
+
+        return (sunset_hour - sunrise_hour) + (sunset_minute - sunrise_minute)/60
+
+        # return (self.sunrise_time,self.sunset_time)
 
     # # to be acquired through API
     # def get_solar_insolation(self, solar_insolation):
