@@ -150,11 +150,20 @@ class Calculator():
     def get_cloud_cover(self, start_date, start_time, end_date, end_time):
         # per hour basis
         start_time_hour = int(start_time[0:2])
-        end_time_hour = int(end_time[0:2])
+        start_time_minute = int(start_time[3:5])
 
+        end_time_hour = int(end_time[0:2])
+        end_time_minute = int(end_time[3:5])
+
+        start_date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
+        end_date_time_obj = datetime.strptime(end_date, '%d/%m/%Y')
+
+        if end_date_time_obj < start_date_time_obj:
+            raise ValueError("End date cannot be earlier than start date")
         # only for case when charging hour spans through midnight, ie 23:xx to 00:xx,
         # since this method is just to calculate each hour's cloud coverage
-        if start_date != end_date:
+        elif start_date != end_date:
+            # retrieve from API respective date's cloud coverage
             self.weather_link = "http://118.138.246.158/api/v1/weather"
             self.location_id = self.location_data[0]['id']
 
@@ -187,6 +196,8 @@ class Calculator():
                 cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
                 return int(cc_1)+int(cc_2)
             elif end_time_hour < start_time_hour:
+                raise ValueError("End time cannot be lesser than start time")
+            elif end_time_minute < start_time_minute:
                 raise ValueError("End time cannot be lesser than start time")
             else:
                 return self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]

@@ -118,9 +118,9 @@ class TestCalculator(unittest.TestCase):
         self.calculator = Calculator(5000,"10/09/2021")
         self.calculator.get_solar_energy_duration("18:01")
 
-    def test_get_cloud_cover(self):
-        self.calculator = Calculator(5000,"14/09/2021")
-        self.calculator.get_cloud_cover()
+    # def test_get_cloud_cover(self):
+    #     self.calculator = Calculator(5000,"14/09/2021")
+    #     self.calculator.get_cloud_cover()
 
     def test_get_cloud_cover(self):
         self.calculator = Calculator(5000,"14/09/2021")
@@ -153,6 +153,9 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "18:00", "22/02/2020", "18:26"), 0)
         self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "00:00", "22/02/2020", "00:59"), 0)
         self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "23:15", "23/02/2020", "00:15"), 0)
+        self.assertRaises(ValueError, lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "23/02/2020", "00:15"))
+        self.assertRaises(ValueError, lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "24/02/2020", "23:05"))
+        self.assertRaises(ValueError, lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "24/02/2020", "21:05"))
 
     if __name__ == "__main__":
         pass
