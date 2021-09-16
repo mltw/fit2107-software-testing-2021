@@ -116,7 +116,18 @@ class Calculator():
 
 
     # to be acquired through API
-    def get_sun_hour(self):
+    def get_sun_hour(self, start_date):
+        self.weather_link = "http://118.138.246.158/api/v1/weather"
+        self.location_id = self.location_data[0]['id']
+
+        year = str(start_date)[6:10]
+        month = str(start_date)[3:5]
+        day = str(start_date)[0:2]
+        date_1 = year + "-" + month + "-" + day
+        self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
+        self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
+        self.weather_data = self.weather_r.json()
+
         self.sun_hour = self.weather_data['sunHours']
         return self.sun_hour
 
