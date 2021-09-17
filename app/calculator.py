@@ -246,6 +246,53 @@ class Calculator():
         # date_time_obj = datetime.strptime(date_time_str, '%d/%m/%Y %H:%M')
         # date_time_after_charge = date_time_obj + datetime.timedelta(hours=time_needed)
 
+    def calculate_solar_energy_within_a_day(self, start_date, start_time, end_time):
+        # get solar hour/insolation (si) and daylight length (dl)
+        si = self.get_sun_hour(start_date)
+        dl = self.get_day_light_length(start_date)
+
+        # get sunrise and sunset time
+        self.weather_link = "http://118.138.246.158/api/v1/weather"
+        self.location_id = self.location_data[0]['id']
+
+        year = str(start_date)[6:10]
+        month = str(start_date)[3:5]
+        day = str(start_date)[0:2]
+        date_1 = year + "-" + month + "-" + day
+        self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
+        self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
+        self.weather_data = self.weather_r.json()
+
+        sr = self.weather_data['sunrise']
+        ss = self.weather_data['sunset']
+
+        # parse to appropriate format
+        sr = int(str(sr[0:2]) + str(sr[3:5]))
+        ss = int(str(ss[0:2]) + str(ss[3:5]))
+        start_time = int(str(start_time[0:2]) + str(start_time[3:5]))
+        end_time = int(str(end_time[0:2]) + str(end_time[3:5]))
+
+        if ss >= start_time >= sr:
+            if end_time >= ss:
+                du = ss - start_time
+            else:
+                du = end_time - start_time
+        elif start_time < sr:
+            if end_time >= sr:
+                du = end_time - sr
+            else:
+                du = 0
+        else: # = elif start_time > ss
+            du = 0
+
+        if len(str(du)) == 1 or len(str(du)) == 2:
+            final_du = du / 60 # convert to hours
+        elif len(str(du)) == 3:
+            final_du = int(str(du)[0]) + int(str(du)[1:3]) / 60
+        else:
+            final_du = int(str(du)[0:2]) + int(str(du)[2:4]) / 60
+
+        return si * final_du / dl * 50 * 0.2
 
     def calculate_solar_energy(self):
         pass
