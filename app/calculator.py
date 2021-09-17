@@ -2,7 +2,7 @@ import holidays
 import datetime
 import requests
 import json
-from datetime import time, datetime
+from datetime import time, datetime, timedelta
 class Calculator():
     # you can choose to initialise variables here, if needed.
 
@@ -270,6 +270,8 @@ class Calculator():
         sr = int(str(sr[0:2]) + str(sr[3:5]))
         ss = int(str(ss[0:2]) + str(ss[3:5]))
         start_time = int(str(start_time[0:2]) + str(start_time[3:5]))
+        print(start_time)
+        print(end_time)
         end_time = int(str(end_time[0:2]) + str(end_time[3:5]))
 
         if ss >= start_time >= sr:
@@ -294,9 +296,56 @@ class Calculator():
 
         return si * final_du / dl * 50 * 0.2
 
-    def calculate_solar_energy(self):
-        pass
+    def calculate_solar_energy(self, start_date, start_time, initial_state, final_state, capacity, power):
+        charge_time = self.time_calculation(initial_state, final_state, capacity, power)
+        start_time_hour = int(start_time[0:2])
+        start_time_minute = int(start_time[3:5])
 
+        # start_time_in_hours = start_time_hour + start_time_minute/60
+
+        charge_time_hour = charge_time * 60 // 60
+        charge_time_minute = charge_time * 60 % 60
+
+        end_time_hour = start_time_hour + charge_time_hour
+        end_time_minute = start_time_minute + charge_time_minute
+
+        start_time_obj = datetime.strptime( start_time, '%H:%M')
+        end_time_obj = start_time_obj + timedelta(hours=charge_time_hour, minutes=charge_time_minute)
+
+        # print('eth: ' + str(end_time_hour))
+        # print('etm: ' + str(end_time_minute))
+        # print('cth: ' + str(charge_time_hour))
+        # print('ctm: ' + str(charge_time_minute))
+        # print('eto: ' + str(end_time_obj))
+
+        # if end_time_minute >= 60:
+        #     end_time_minute -= 60
+        #     end_time_hour += 1
+        # end_time = str(end_time_hour) + ":" + str(end_time_minute)
+        end_time = str(end_time_obj.time())[0:5]
+
+        # within a single day
+        if end_time_hour + end_time_minute/60 <= 23.59:
+            res = self.calculate_solar_energy_within_a_day(start_date, start_time, end_time)
+        else:
+            res = 0
+            date_time_obj = datetime.strptime(start_date + " " + start_time, '%d/%m/%Y %H:%M')
+            date_time_after_charge = date_time_obj + timedelta(hours=charge_time)
+            start_time_new = start_time
+            charge_date_new = str(date_time_obj.date())[8:10] \
+                              + "/" + str(date_time_obj.date())[5:7] \
+                              + "/" + str(date_time_obj.date())[0:4]
+
+            while date_time_obj.day != date_time_after_charge.day:
+                # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
+
+                res += self.calculate_solar_energy_within_a_day(charge_date_new, start_time_new, "23:59")
+                date_time_obj += timedelta(days=1)
+                start_time_new = "00:00"
+
+            res += self.calculate_solar_energy_within_a_day(charge_date_new, start_time_new, end_time)
+
+        return res
 
     # Additional new function
     def get_power(self,charger_configuration):
@@ -342,3 +391,33 @@ class Calculator():
             raise Exception("NO SUCH CONFIGURATION")
 
 
+# date_time_obj = datetime.strptime("28/02/2021" + " " + "22:02", '%d/%m/%Y %H:%M')
+# # date_time_str = str(date_time_obj) + " " + str(start_time)
+# # date_time_obj = datetime.strptime(date_time_str, '%d/%m/%Y %H:%M')
+# date_time_after_charge = date_time_obj + timedelta(hours=3)
+# print(date_time_after_charge.day)
+# print(date_time_obj + timedelta(days = 1))
+# temp_du = timedelta(hours=24) - timedelta(hours=5, minutes=55)
+# print(temp_du)
+# print(date_time_obj.date())
+#
+# location_link = "http://118.138.246.158/api/v1/location"
+# postcode = str(6000)
+# postcode_PARAMS = {'postcode': postcode}
+# location_r = requests.get(url=location_link, params=postcode_PARAMS)
+# location_data = location_r.json()
+#
+# weather_link = "http://118.138.246.158/api/v1/weather"
+# location_id = location_data[0]['id']
+# date_time_obj = datetime.strptime("25/12/2020", '%d/%m/%Y')
+# month = str(date_time_obj.month)
+# if len(month) != 2:
+#     month = "0" + month
+# day = str(date_time_obj.day)
+# if len(day) != 2:
+#     day = "0" + day
+# new_date = "2020" + "-" + "02" + "-" + "22"
+# # new_date = str(date_time_obj.year) + "-" + month + day
+# weather_PARAMS = {'location': location_id, 'date': new_date}
+# weather_r = requests.get(url=weather_link, params=weather_PARAMS)
+# weather_data = weather_r.json()

@@ -173,7 +173,11 @@ class TestCalculator(unittest.TestCase):
 
     def test_calculate_solar_energy_within_a_day(self):
         self.calculator = Calculator(6001, "25/12/2020")
-        self.assertAlmostEqual(self.calculator.calculate_solar_energy_within_a_day("25/12/2020", "08:00", "09:00"), 6.04, 2)
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy_within_a_day("25/12/2020", "08:00", "09:00"), 6.04, 1)
+
+    def test_calculate_solar_energy(self):
+        self.calculator = Calculator(6001, "25/12/2020")
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("25/12/2020", "08:00", 20, 80, 82, 350), 0.85, 1)
 
     if __name__ == "__main__":
         pass
