@@ -30,6 +30,19 @@ def operation_result():
         post_code = request.form["PostCode"]
         charger_configuration = request.form['ChargerConfiguration']
 
+        lst = start_date.split('/')
+        if len(lst[0]) == 1:
+            day = '0' + lst[0]
+        else:
+            day = lst[0]
+        if len(lst[1]) == 1:
+            month = '0' + lst[1]
+        else:
+            month = lst[1]
+        year = lst[2]
+
+        start_date = day + '/' + month + '/' + year
+
         # if valid, create calculator to calculate the time and cost
         calculator = Calculator(post_code,start_date)
 
