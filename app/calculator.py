@@ -212,7 +212,17 @@ class Calculator():
             self.weather_data = self.weather_r.json()
             print(self.weather_data)
 
-            cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
+            cc_1 = 0
+            cc_2 = 0
+
+            # hourlyWeatherHistory's output of hours are not in order 0 - 23, may change sometimes,
+            # thus need to manually loop through the whole array
+            for i in range(24):
+                if self.weather_data["hourlyWeatherHistory"][i]["hour"] == start_time:
+                    cc_1 = self.weather_data["hourlyWeatherHistory"][i]["cloudCoverPct"]
+                    break
+                else:
+                    pass
 
             year = str(end_date)[6:10]
             month = str(end_date)[3:5]
@@ -221,9 +231,13 @@ class Calculator():
             self.weather_PARAMS = {'location': self.location_id, 'date': date_2}
             self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
             self.weather_data = self.weather_r.json()
-            print(self.weather_data)
 
-            cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
+            for i in range(24):
+                if self.weather_data["hourlyWeatherHistory"][i]["hour"] == start_time:
+                    cc_2 = self.weather_data["hourlyWeatherHistory"][i]["cloudCoverPct"]
+                    break
+                else:
+                    pass
 
             return cc_1 + cc_2
         else:
@@ -237,14 +251,6 @@ class Calculator():
                 raise ValueError("End time cannot be lesser than start time")
             else:
                 return self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
-
-        # time_needed = self.time_calculation(initial_state, final_state, capacity, power)
-        #
-        # date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
-        #
-        # date_time_str = str(date_time_obj) + " " +  str(start_time)
-        # date_time_obj = datetime.strptime(date_time_str, '%d/%m/%Y %H:%M')
-        # date_time_after_charge = date_time_obj + datetime.timedelta(hours=time_needed)
 
     def calculate_solar_energy_within_a_day(self, start_date, start_time, end_time):
         # get solar hour/insolation (si) and daylight length (dl)
