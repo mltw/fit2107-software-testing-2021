@@ -30,20 +30,17 @@ def operation_result():
         post_code = request.form["PostCode"]
         charger_configuration = request.form['ChargerConfiguration']
 
+
         # if valid, create calculator to calculate the time and cost
         calculator = Calculator(post_code,start_date)
 
-
         # you may change the logic as your like
-        duration = calculator.get_duration(start_time)
+        # duration = calculator.get_duration(start_time)
 
-        is_peak = calculator.is_peak(start_time)
-        peak_period = 0
-        if is_peak:
-            peak_period = calculator.peak_period(start_time,initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
-        is_holiday = calculator.is_holiday(start_date)
-
-        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, peak_period, is_holiday, calculator.get_price(charger_configuration))
+        peak_period = calculator.peak_period(start_time,initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
+        holiday_percent = calculator.is_holiday_temp(start_date,initial_charge, final_charge, battery_capacity,calculator.get_power(charger_configuration), start_time)
+        print(peak_period,holiday_percent)
+        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, peak_period,holiday_percent,calculator.get_price(charger_configuration))
 
         time = calculator.time_calculation(initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
 

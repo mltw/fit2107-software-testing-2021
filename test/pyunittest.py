@@ -1,4 +1,4 @@
-from app.calculator import *
+from ..app.calculator import *
 import unittest
 
 
@@ -8,16 +8,14 @@ class TestCalculator(unittest.TestCase):
     # you may add parameters to test methods
     # this is an example
     def test_cost(self):
-
         self.calculator = Calculator(5000,"14/09/2021")
         self.calculator = Calculator(5000,"14/9/2021")
-        print(self.calculator.weather_data)
         # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
-        self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 100, True,7.5),2), 0.28)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 100, False,20),2), 8.51)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 0, False,20),2), 4.26)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 14, False,20),2), 4.85)
-        self.assertRaises(AssertionError , self.calculator.cost_calculation ,7, 83, 56, -14, False,20)
+        self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 1, 1,7.5),2), 0.28)
+        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 1, 0,20),2), 8.51)
+        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 0, 0,20),2), 4.26)
+        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 0.14, 0,20),2), 4.85)
+        self.assertRaises(AssertionError , self.calculator.cost_calculation ,7, 83, 56, -14, 1,20)
 
     def test_time(self):
         self.calculator = Calculator(5000,"14/09/2021")
@@ -45,15 +43,15 @@ class TestCalculator(unittest.TestCase):
 
     def test_peak_period(self):
         self.calculator = Calculator(5000,"14/09/2021")
-        self.assertEqual(self.calculator.peak_period("17:50",7,83,56,36),14)
+        self.assertEqual(self.calculator.peak_period("17:50",7,83,56,36),0.1412)
         # test multiple days charging
-        self.assertEqual(self.calculator.peak_period("17:50",0,100,56,3.6),22)
+        self.assertEqual(self.calculator.peak_period("17:50",0,100,56,3.6),0.2288)
         # test multiple days charging
-        self.assertEqual(self.calculator.peak_period("17:50",0,100,100,0.8),48)
-        self.assertEqual(self.calculator.peak_period("14:50",7,83,56,36),100)
+        self.assertEqual(self.calculator.peak_period("17:50",0,100,100,0.8),0.4813)
+        self.assertEqual(self.calculator.peak_period("14:50",7,83,56,36),1)
 
         # test starting from non-peak (6am) ends on peak on same day
-        self.assertEqual(self.calculator.peak_period("05:50",7,83,56,36),int((self.calculator.time_calculation(7,83,56,36)+5.83333 - 6.0)*100/self.calculator.time_calculation(7,83,56,36)))
+        self.assertEqual(self.calculator.peak_period("05:50",7,83,56,36),0.8588)
         # test starting from non-peak (6pm) ends on non-peak on same day
         self.assertEqual(self.calculator.peak_period("18:00",7,83,56,36),0)
         self.assertEqual(self.calculator.peak_period("18:01",7,83,56,36),0)
@@ -72,7 +70,7 @@ class TestCalculator(unittest.TestCase):
                 add = 0
             else:
                 add = remained_time - 6
-        self.assertEqual(self.calculator.peak_period("05:50",0,100,100,0.8),int((12+day*12+add)*100/total))
+        self.assertEqual(self.calculator.peak_period("05:50",0,100,100,0.8),round((12+day*12+add)/total,4))
         # test starting from non-peak (6pm) ends on peak on different day
         total = self.calculator.time_calculation(0,100,100,0.8)
         total_time = (self.calculator.time_calculation(0,100,100,0.8)+18) - 24
@@ -86,7 +84,7 @@ class TestCalculator(unittest.TestCase):
                 add = 0
             else:
                 add = remained_time - 6
-        self.assertEqual(self.calculator.peak_period("18:00",0,100,100,0.8),int((0+day*12+add)*100/total))
+        self.assertEqual(self.calculator.peak_period("18:00",0,100,100,0.8),(0+day*12+add)/total)
         # test starting from non-peak (6am) ends on non_peak on different day
         # test starting from non-peak (6pm) ends on non_peak on different day
         # test starting from peak ends on non_peak on same day
@@ -102,9 +100,57 @@ class TestCalculator(unittest.TestCase):
                 add = 0
             else:
                 add = remained_time - 6
-        self.assertEqual(self.calculator.peak_period("04:00",0,100,100,0.8),int((12+day*12+add)*100/total))
+        self.assertEqual(self.calculator.peak_period("04:00",0,100,100,0.8),(12+day*12+add)/total)
         # test starting from peak ends on non_peak on different day
         # test starting from peak ends on peak on different day
+
+    def test_holiday_temp(self):
+        self.calculator = Calculator(5000,"14/09/2021")
+        final_state = 100
+        initial_state = 0
+        capacity = 300
+        power = 2.9
+        # time is 103.45 hours
+        time = (final_state - initial_state) / 100 * capacity / power
+        # 18/09/2021 -- Weekend 106.45  03:00 --> 24:00  (21.03 hrs)
+        # 19/09/2021 -- Weekend 82.45   (24hrs)
+        # 20/09/2021 -- Weekday 58.45   (24hrs)
+        # 21/09/2021 -- Weekday 34.45   (24hrs)
+        # 22/09/2021 -- Weekday 10.45    (10.45hrs)
+        # total time : 58.45
+        # percentage : 58.45 / 103.45
+        self.assertEqual(self.calculator.is_holiday_temp("18/09/2021",initial_state,final_state,capacity,power,"03:00"),round((58.45 / 103.45) , 4))
+        final_state = 100
+        initial_state = 0
+        capacity = 300
+        power = 100
+        # time is 3.0 hours
+        time = (final_state - initial_state) / 100 * capacity / power
+        # 18/09/2021 -- Weekend 3  03:00 --> 06:00  (3hrs)
+        # total holiday time : 0
+        # percentage : 0%
+        self.assertEqual(self.calculator.is_holiday_temp("18/09/2021",initial_state,final_state,capacity,power,"03:00"),0)
+        # 20/09/2021 -- Weekday 3  03:00 --> 06:00  (3hrs)
+        # total holiday time : 3
+        # percentage : 1
+        self.assertEqual(self.calculator.is_holiday_temp("20/09/2021",initial_state,final_state,capacity,power,"03:00"),1)
+        # test if minute is working for this case
+        self.assertEqual(self.calculator.is_holiday_temp("20/09/2021",initial_state,final_state,capacity,power,"03:30"),1)
+        final_state = 100
+        initial_state = 0
+        capacity = 300
+        power = 2.9
+        # time is 103.45 hours
+        time = (final_state - initial_state) / 100 * capacity / power
+        # 21/09/2021 -- Weekday 106.45  03:00 --> 24:00  (21.00 hrs)
+        # 22/09/2021 -- Weekday 82.45   (24hrs)
+        # 23/09/2021 -- Weekday 58.45   (24hrs)
+        # 24/09/2021 -- Weekday 34.45   (24hrs)
+        # 25/09/2021 -- Weekend 10.45    (10.45hrs)
+        # total time : 93
+        # percentage : 93 / 103.45
+        self.assertEqual(self.calculator.is_holiday_temp("21/09/2021",initial_state,final_state,capacity,power,"03:00"),round(93 / 103.45 , 4))
+
 
     # def test_get_duration(self):
     #     self.calculator = Calculator(5000,"14/09/2021")
@@ -139,6 +185,7 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_power(6),36)
         self.assertEqual(self.calculator.get_power(7),90)
         self.assertEqual(self.calculator.get_power(8),350)
+
     def test_price(self):
         self.calculator = Calculator(5000,"14/09/2021")
         self.assertEqual(self.calculator.get_price(1),5)

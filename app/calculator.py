@@ -2,7 +2,7 @@ import holidays
 import datetime
 import requests
 import json
-from datetime import time, datetime, timedelta
+from datetime import time, datetime,timedelta
 class Calculator():
     # you can choose to initialise variables here, if needed.
 
@@ -35,16 +35,17 @@ class Calculator():
         # print(self.weather_data)
 
     # you may add more parameters if needed, you may modify the formula also.
-    def cost_calculation(self, initial_state, final_state, capacity, peak_period, is_holiday,base_price):
-        assert peak_period >= 0 and peak_period <= 100 , "Please provide a valid peak_period, must be between 0 and 100"
-        non_peak = 0.5*(1-(peak_period/100))
-        peak = (1*(peak_period/100))
+    def cost_calculation(self, initial_state, final_state, capacity, peak_period, holiday_percent,base_price):
+        assert peak_period >= 0 and peak_period <= 1 , "Please provide a valid peak_period, must be between 0 and 100"
+        assert holiday_percent >= 0 and holiday_percent <= 1 , "Please provide a valid holiday_percent, must be between 0 and 100"
+        non_peak = 0.5*(1-(peak_period))
+        peak = (1*(peak_period))
+        print("original Base price : ", base_price)
         base_price =base_price*(non_peak+peak)
+        print("base price : ", base_price)
 
-        if is_holiday:
-            surcharge_factor = 1.1
-        else:
-            surcharge_factor = 1
+        surcharge_factor =  1.1*holiday_percent + 1*(1-holiday_percent)
+        print("surcharge_factor : ",surcharge_factor)
 
         cost = (int(final_state) - int(initial_state)) / 100 * int(capacity) * base_price / 100 * surcharge_factor
         return cost
@@ -52,7 +53,7 @@ class Calculator():
     # you may add more parameters if needed, you may also modify the formula.
     def time_calculation(self, initial_state, final_state, capacity, power):
         time = (int(final_state) - int(initial_state)) / 100 * int(capacity) / power
-        return time
+        return round(time,2)
 
 
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
@@ -61,21 +62,71 @@ class Calculator():
         date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         return date_time_obj in aus_holidays or date_time_obj.weekday() <= 4
 
+    def is_holiday_temp_2(self, start_date):
+        aus_holidays = holidays.Australia()
+        return start_date in aus_holidays or start_date.weekday() <= 4
+
+    def is_holiday_temp(self, start_date,initial_state, final_state, capacity, power,start_time):
+        time = self.time_calculation(initial_state, final_state, capacity, power)
+
+        time_array = start_time.split(':')
+        st_hour = int(time_array[0])
+        st_minute = int(time_array[1])
+        new_start_date = datetime.strptime(start_date, '%d/%m/%Y')
+
+        num_of_day = time//24
+        remaining_time = round(time%24,2)
+
+        expected_end_time = st_hour*60 + st_minute + time*60
+        # If it does not exceed first day
+        if (st_hour*60 + st_minute) + time*60 <= 24*60 :
+            # if holiday return 100%, it means 100% holiday
+            if self.is_holiday_temp_2(new_start_date):
+                return 1
+            # else 0% holiday
+            else :
+                return 0
+        # if it exceed first day, more than 1 day
+        else :
+            # if first day is holiday, add it into holiday_minute_total
+            if self.is_holiday_temp_2(new_start_date):
+                holiday_minute_total = 24*60 - st_hour*60 - st_minute
+            else :
+                holiday_minute_total = 0
+            next_date = new_start_date + timedelta(hours=24)
+            expected_end_time -= 24*60
+            while expected_end_time >= 24*60:
+                expected_end_time -= 24*60
+                if self.is_holiday_temp_2(next_date) :
+                    holiday_minute_total += 24*60
+                next_date += timedelta(hours=24)
+            # last day
+            if self.is_holiday_temp_2(next_date):
+                holiday_minute_total += expected_end_time
+            return round(holiday_minute_total/(time*60),4)
+
+
     def is_peak(self, start_time):
-        date_time_obj = time(int(start_time[0:2]),int(start_time[3:5]))
+        time_array = start_time.split(':')
+        st_hour = int(time_array[0])
+        st_minute = int(time_array[1])
+        date_time_obj = time(int(st_hour),int(st_minute))
         non_peak_time_1 = time(6,0)
         non_peak_time_2 = time(18,0)
         return non_peak_time_1 <= date_time_obj <= non_peak_time_2
 
     def peak_period(self, start_time,initial_state, final_state, capacity,power):
-        given_time = int(start_time[0:2])*60 +  int(start_time[3:5])
+        time_array = start_time.split(':')
+        st_hour = int(time_array[0])
+        st_minute = int(time_array[1])
+        given_time = int(st_hour)*60 +  int(st_minute)
         expected_period = self.time_calculation(initial_state,final_state,capacity,power) * 60
         expected_end = given_time + expected_period
-        new_start_time = int(start_time[0:2]) * 60 + int(start_time[3:5])
+        new_start_time = int(st_hour) * 60 + int(st_minute)
         total_peak_time = 0
         if(self.is_peak(start_time)):
             if expected_end <= 18*60:
-                return 100
+                return 1
             else :
                 time_diff = expected_end - 18*60
                 total_peak_time = expected_period - time_diff
@@ -108,8 +159,8 @@ class Calculator():
                 if end_time > time(18,0):
                     total_peak_time += 12*60
                 else:
-                    total_peak_time+= expected_end - 6*60
-        return int(total_peak_time*100/expected_period)
+                    total_peak_time += expected_end - 6*60
+        return round(total_peak_time/expected_period,4)
 
     # def get_duration(self, start_time, initial_state, final_state, capacity, power):
     #     time_needed = self.time_calculation(initial_state, final_state, capacity, power)
@@ -210,7 +261,7 @@ class Calculator():
             self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
             self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
             self.weather_data = self.weather_r.json()
-            print(self.weather_data)
+            # print(self.weather_data)
 
             cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
 
@@ -221,7 +272,7 @@ class Calculator():
             self.weather_PARAMS = {'location': self.location_id, 'date': date_2}
             self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
             self.weather_data = self.weather_r.json()
-            print(self.weather_data)
+            # print(self.weather_data)
 
             cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
 
@@ -270,8 +321,8 @@ class Calculator():
         sr = int(str(sr[0:2]) + str(sr[3:5]))
         ss = int(str(ss[0:2]) + str(ss[3:5]))
         start_time = int(str(start_time[0:2]) + str(start_time[3:5]))
-        print(start_time)
-        print(end_time)
+        # print(start_time)
+        # print(end_time)
         end_time = int(str(end_time[0:2]) + str(end_time[3:5]))
 
         if ss >= start_time >= sr:
