@@ -112,9 +112,13 @@ class TestCalculator(unittest.TestCase):
 
     def test_get_sun_hour(self):
         self.calculator = Calculator(5000,"10/09/2021")
-        self.calculator.get_sun_hour()
+        self.assertEqual(self.calculator.get_sun_hour("02/02/2021"), 7.6)
+        self.assertEqual(self.calculator.get_sun_hour("22/02/2020"), 7.2)
 
-    def test_get_solar_duration(self):
+        self.calculator = Calculator(6001, "25/12/2020")
+        self.assertEqual(self.calculator.get_sun_hour("25/12/2020"), 8.6)
+
+    def test_get_solar_energy_duration(self):
         self.calculator = Calculator(5000,"10/09/2021")
         self.calculator.get_solar_energy_duration("18:01")
 
@@ -122,9 +126,9 @@ class TestCalculator(unittest.TestCase):
     #     self.calculator = Calculator(5000,"14/09/2021")
     #     self.calculator.get_cloud_cover()
 
-    def test_get_cloud_cover(self):
-        self.calculator = Calculator(5000,"14/09/2021")
-        self.calculator.calculate_solar_energy()
+    # def test_get_cloud_cover(self):
+    #     self.calculator = Calculator(5000,"14/09/2021")
+    #     self.calculator.calculate_solar_energy()
     def test_power(self):
         self.calculator = Calculator(5000,"14/09/2021")
         self.assertEqual(self.calculator.get_power(1),2.0)
@@ -156,6 +160,24 @@ class TestCalculator(unittest.TestCase):
         self.assertRaises(ValueError, lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "23/02/2020", "00:15"))
         self.assertRaises(ValueError, lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "24/02/2020", "23:05"))
         self.assertRaises(ValueError, lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "24/02/2020", "21:05"))
+
+    def test_get_day_light_length(self):
+        self.calculator = Calculator(5000, "02/02/2021")
+        self.assertAlmostEqual(self.calculator.get_day_light_length("02/02/2021"), 13.77, 2)
+
+        self.calculator = Calculator(5000, "22/02/2020")
+        self.assertAlmostEqual(self.calculator.get_day_light_length("22/02/2020"), 13.13, 2)
+
+        self.calculator = Calculator(6001, "25/12/2020")
+        self.assertAlmostEqual(self.calculator.get_day_light_length("25/12/2020"), 14.23, 2)
+
+    def test_calculate_solar_energy_within_a_day(self):
+        self.calculator = Calculator(6001, "25/12/2020")
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy_within_a_day("25/12/2020", "08:00", "09:00"), 6.04, 1)
+
+    def test_calculate_solar_energy(self):
+        self.calculator = Calculator(6001, "25/12/2020")
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("25/12/2020", "08:00", 20, 80, 82, 350), 0.85, 1)
 
     if __name__ == "__main__":
         pass
