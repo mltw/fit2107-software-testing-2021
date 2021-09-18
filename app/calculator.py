@@ -40,12 +40,12 @@ class Calculator():
         assert holiday_percent >= 0 and holiday_percent <= 1 , "Please provide a valid holiday_percent, must be between 0 and 100"
         non_peak = 0.5*(1-(peak_period))
         peak = (1*(peak_period))
-        print("original Base price : ", base_price)
+        # print("original Base price : ", base_price)
         base_price =base_price*(non_peak+peak)
-        print("base price : ", base_price)
+        # print("base price : ", base_price)
 
         surcharge_factor =  1.1*holiday_percent + 1*(1-holiday_percent)
-        print("surcharge_factor : ",surcharge_factor)
+        # print("surcharge_factor : ",surcharge_factor)
 
         cost = (int(final_state) - int(initial_state)) / 100 * int(capacity) * base_price / 100 * surcharge_factor
         return cost
@@ -104,7 +104,6 @@ class Calculator():
             if self.is_holiday_temp_2(next_date):
                 holiday_minute_total += expected_end_time
             return round(holiday_minute_total/(time*60),4)
-
 
     def is_peak(self, start_time):
         time_array = start_time.split(':')
@@ -200,26 +199,35 @@ class Calculator():
 
     # to be acquired through API
     def get_day_light_length(self, start_date):
+        # Meng Yew approved this
         # per day basis
         self.weather_link = "http://118.138.246.158/api/v1/weather"
         self.location_id = self.location_data[0]['id']
 
-        year = str(start_date)[6:10]
-        month = str(start_date)[3:5]
-        day = str(start_date)[0:2]
+        date = start_date.split('/')
+        year = date[2]
+        month = date[1]
+        day = date[0]
         date_1 = year + "-" + month + "-" + day
         self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
-
+        # sunrise_time_format : 05:10:00
+        # sunset_time_format : 19:24:00
         sunrise_time = self.weather_data['sunrise']
         sunset_time = self.weather_data['sunset']
 
-        sunrise_hour = int(sunrise_time[0:2])
-        sunrise_minute = int(sunrise_time[3:5])
+        # sunrise_time_format : [hour,minute,seconds]
+        # sunrise_time_format : [5,10,0]
+        # sunset_time_format : [19,24,0]
+        sunrise_time = sunrise_time.split(':')
+        sunset_time  = sunset_time.split(':')
 
-        sunset_hour = int(sunset_time[0:2])
-        sunset_minute = int(sunset_time[3:5])
+        sunrise_hour = int(sunrise_time[0])
+        sunrise_minute = int(sunrise_time[1])
+
+        sunset_hour = int(sunset_time[0])
+        sunset_minute = int(sunset_time[1])
 
         if sunset_minute < sunrise_minute:
             sunset_minute += 60
@@ -236,11 +244,15 @@ class Calculator():
     # to be acquired through API
     def get_cloud_cover(self, start_date, start_time, end_date, end_time):
         # per hour basis
-        start_time_hour = int(start_time[0:2])
-        start_time_minute = int(start_time[3:5])
+        # start time format 03:22 -> [3,22]
+        start_time = start_time.split(':')
+        start_time_hour = int(start_time[0])
+        start_time_minute = int(start_time[1])
 
-        end_time_hour = int(end_time[0:2])
-        end_time_minute = int(end_time[3:5])
+        # end time format 03:22 -> [3,22]
+        end_time = end_time.split(':')
+        end_time_hour = int(end_time[0])
+        end_time_minute = int(end_time[1])
 
         start_date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         end_date_time_obj = datetime.strptime(end_date, '%d/%m/%Y')
@@ -254,9 +266,10 @@ class Calculator():
             self.weather_link = "http://118.138.246.158/api/v1/weather"
             self.location_id = self.location_data[0]['id']
 
-            year = str(start_date)[6:10]
-            month = str(start_date)[3:5]
-            day = str(start_date)[0:2]
+            temp_start_date = str(start_date).split('/')
+            year = temp_start_date[2]
+            month = temp_start_date[1]
+            day = temp_start_date[0]
             date_1 = year + "-" + month + "-" + day
             self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
             self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
@@ -265,9 +278,10 @@ class Calculator():
 
             cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
 
-            year = str(end_date)[6:10]
-            month = str(end_date)[3:5]
-            day = str(end_date)[0:2]
+            temp_end_date = str(start_date).split('/')
+            year = temp_end_date[2]
+            month = temp_end_date[1]
+            day = temp_end_date[0]
             date_2 = year + "-" + month + "-" + day
             self.weather_PARAMS = {'location': self.location_id, 'date': date_2}
             self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
@@ -275,6 +289,7 @@ class Calculator():
             # print(self.weather_data)
 
             cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
+            print(cc_1,cc_2)
 
             return cc_1 + cc_2
         else:
@@ -337,14 +352,12 @@ class Calculator():
                 du = 0
         else: # = elif start_time > ss
             du = 0
-
         if len(str(du)) == 1 or len(str(du)) == 2:
             final_du = du / 60 # convert to hours
         elif len(str(du)) == 3:
             final_du = int(str(du)[0]) + int(str(du)[1:3]) / 60
         else:
             final_du = int(str(du)[0:2]) + int(str(du)[2:4]) / 60
-
         return si * final_du / dl * 50 * 0.2
 
     def calculate_solar_energy(self, start_date, start_time, initial_state, final_state, capacity, power):

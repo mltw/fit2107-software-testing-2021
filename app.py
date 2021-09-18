@@ -30,7 +30,6 @@ def operation_result():
         post_code = request.form["PostCode"]
         charger_configuration = request.form['ChargerConfiguration']
 
-
         # if valid, create calculator to calculate the time and cost
         calculator = Calculator(post_code,start_date)
 
