@@ -239,30 +239,30 @@ class TestCalculator(unittest.TestCase):
 
         # single day start time before sunrise, end time before sunrise
         self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 90, 100, 90, 90),0.0)
+
         # single day start time before sunrise, end time between sunrise and sunset
-        # expected : 8.99527559055118
-        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 90, 100, 90, 2.0),8.99527559055118)
+        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 90, 100, 90, 2.0), 8.99527559055118)
+
         # single day start time before sunrise, end time after sunset
-        # expected : 28
-        print(self.calculator.calculate_solar_energy("01/08/2021", "07:00", 0,30 ,90 , 2.0))
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:00", 0,30 ,90 , 2.0), 28, 1)
+
         # single day start time after sunrise and sunset
         self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 90,100 ,90 , 90),0.0)
+
         # single day start time after sunrise before sunset end time before sunset
-        # expected : 11.905511811023622
-        print(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 90,100 ,90 , 2.0))
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 90,100 ,90 , 2.0),11.9,1)
+
         # single day start time after sunrise before sunset end time after sunset
-        # expected : 26.941732283464564
-        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 0,30 ,90 , 2.0),26.941732283464564)
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 0,30 ,90 , 2.0),26.94,2)
 
         # multiple days start time after sunset end time before sunrise
-        # expected : 56.12715855572999
-        print(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 0,80 ,90 , 2.0))
-        # multiple days start time before sunrise end time after sunset
-        # expected : 55.12715855572998
-        print(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 0,90,90, 2.0))
-        # multiple days start time between sunrise and sunset , end time between sunset and sunrise
-        # expected : 47.67268468314587
-        print(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0))
+        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 0,80 ,90 , 2.0), 27)
+
+        # multiple days start time before sunrise end time after sunset ERR
+        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 0,90,90, 2.0), 56)
+
+        # multiple days start time between sunrise and sunset , end time between sunset and sunrise ERR
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0), 47.013, 2)
 
     if __name__ == "__main__":
         pass
