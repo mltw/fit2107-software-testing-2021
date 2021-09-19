@@ -312,6 +312,41 @@ class Calculator():
         # date_time_obj = datetime.strptime(date_time_str, '%d/%m/%Y %H:%M')
         # date_time_after_charge = date_time_obj + datetime.timedelta(hours=time_needed)
 
+    def get_duration(self, start_time, end_time):
+        # start and end time are of type integer, eg 730, 1640, 20
+        start_time_hour = 0
+        if len(start_time) == 1 or len(start_time) == 2:
+            start_time_minute = start_time
+        elif len(start_time) == 3:
+            start_time_minute = start_time[-2:]
+            start_time_hour = start_time[0]
+        else:
+            start_time_minute = start_time[-2:]
+            start_time_hour = start_time[0:2]
+
+        end_time_hour = start_time_hour
+        if len(end_time) == 1 or len(end_time) == 2:
+            end_time_minute = start_time
+        elif len(end_time) == 3:
+            end_time_minute = end_time[-2:]
+            end_time_hour = end_time[0]
+        else:
+            end_time_minute = end_time[-2:]
+            end_time_hour = end_time[0:2]
+
+        start_time_hour = int(start_time_hour)
+        start_time_minute = int(start_time_minute)
+        end_time_hour = int(end_time_hour)
+        end_time_minute = int(end_time_minute)
+
+        if end_time_minute < start_time_minute:
+            end_time_minute += 60
+            end_time_hour -= 1
+
+        du_minute = end_time_minute - start_time_minute
+        du_hour = end_time_hour - start_time_hour
+        return int(str(du_hour)+str(du_minute))
+
     def calculate_solar_energy_within_a_day(self, start_date, start_time, end_time):
         # get solar hour/insolation (si) and daylight length (dl)
         si = self.get_sun_hour(start_date)
@@ -342,16 +377,20 @@ class Calculator():
 
         if ss >= start_time >= sr:
             if end_time >= ss:
-                du = ss - start_time
+                du = self.get_duration(str(start_time), str(ss))
             else:
-                du = end_time - start_time
+                du = self.get_duration(str(start_time), str(end_time))
+
         elif start_time < sr:
-            if end_time >= sr:
-                du = end_time - sr
+            if ss >= end_time >= sr:
+                du = self.get_duration(str(sr), str(end_time))
+            elif end_time > ss:
+                du = self.get_duration(str(sr), str(ss))
             else:
                 du = 0
         else: # = elif start_time > ss
             du = 0
+
         if len(str(du)) == 1 or len(str(du)) == 2:
             final_du = du / 60 # convert to hours
         elif len(str(du)) == 3:
@@ -401,6 +440,9 @@ class Calculator():
                               + "/" + str(date_time_obj.date())[0:4]
 
             while date_time_obj.day != date_time_after_charge.day:
+                charge_date_new = str(date_time_obj.date())[8:10] \
+                                  + "/" + str(date_time_obj.date())[5:7] \
+                                  + "/" + str(date_time_obj.date())[0:4]
                 # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
 
                 res += self.calculate_solar_energy_within_a_day(charge_date_new, start_time_new, "23:59")
