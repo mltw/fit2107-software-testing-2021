@@ -259,10 +259,10 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 0,80 ,90 , 2.0), 27)
 
         # multiple days start time before sunrise end time after sunset ERR
-        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 0,90,90, 2.0), 56)
+        self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 0,90,90, 2.0), 55)
 
         # multiple days start time between sunrise and sunset , end time between sunset and sunrise ERR
-        self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0), 47.013, 2)
+        self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0), 47.227, 2)
 
     if __name__ == "__main__":
         pass
