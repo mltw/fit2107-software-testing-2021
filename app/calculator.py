@@ -345,6 +345,12 @@ class Calculator():
 
         du_minute = end_time_minute - start_time_minute
         du_hour = end_time_hour - start_time_hour
+
+        if len(str(du_minute)) == 1:
+           du_minute = '0' + str(du_minute)
+        else:
+            pass
+
         return int(str(du_hour)+str(du_minute))
 
     def calculate_solar_energy_within_a_day(self, start_date, start_time, end_time):
@@ -435,9 +441,6 @@ class Calculator():
             date_time_obj = datetime.strptime(start_date + " " + start_time, '%d/%m/%Y %H:%M')
             date_time_after_charge = date_time_obj + timedelta(hours=charge_time)
             start_time_new = start_time
-            charge_date_new = str(date_time_obj.date())[8:10] \
-                              + "/" + str(date_time_obj.date())[5:7] \
-                              + "/" + str(date_time_obj.date())[0:4]
 
             while date_time_obj.day != date_time_after_charge.day:
                 charge_date_new = str(date_time_obj.date())[8:10] \
@@ -449,6 +452,9 @@ class Calculator():
                 date_time_obj += timedelta(days=1)
                 start_time_new = "00:00"
 
+            charge_date_new = str(date_time_obj.date())[8:10] \
+                              + "/" + str(date_time_obj.date())[5:7] \
+                              + "/" + str(date_time_obj.date())[0:4]
             res += self.calculate_solar_energy_within_a_day(charge_date_new, start_time_new, end_time)
 
         return res
