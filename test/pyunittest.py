@@ -255,13 +255,13 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 0,30 ,90 , 2.0),26.941732283464564)
 
         # multiple days start time after sunset end time before sunrise
-        # expected : 56.12715855572999
+        # expected : 27
         print(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 0,80 ,90 , 2.0))
         # multiple days start time before sunrise end time after sunset
-        # expected : 55.12715855572998
+        # expected : 55.0
         print(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 0,90,90, 2.0))
         # multiple days start time between sunrise and sunset , end time between sunset and sunrise
-        # expected : 47.67268468314587
+        # expected : 47.54552612741588
         print(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0))
 
     if __name__ == "__main__":
