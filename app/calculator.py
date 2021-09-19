@@ -276,7 +276,17 @@ class Calculator():
             self.weather_data = self.weather_r.json()
             # print(self.weather_data)
 
-            cc_1 = self.weather_data["hourlyWeatherHistory"][start_time_hour]["cloudCoverPct"]
+            cc_1 = 0
+            cc_2 = 0
+
+            # hourlyWeatherHistory's output of hours are not in order 0 - 23, may change sometimes,
+            # thus need to manually loop through the whole array
+            for i in range(24):
+                if self.weather_data["hourlyWeatherHistory"][i]["hour"] == start_time:
+                    cc_1 = self.weather_data["hourlyWeatherHistory"][i]["cloudCoverPct"]
+                    break
+                else:
+                    pass
 
             temp_end_date = str(start_date).split('/')
             year = temp_end_date[2]
@@ -286,10 +296,13 @@ class Calculator():
             self.weather_PARAMS = {'location': self.location_id, 'date': date_2}
             self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
             self.weather_data = self.weather_r.json()
-            # print(self.weather_data)
 
-            cc_2 = self.weather_data["hourlyWeatherHistory"][end_time_hour]["cloudCoverPct"]
-            print(cc_1,cc_2)
+            for i in range(24):
+                if self.weather_data["hourlyWeatherHistory"][i]["hour"] == start_time:
+                    cc_2 = self.weather_data["hourlyWeatherHistory"][i]["cloudCoverPct"]
+                    break
+                else:
+                    pass
 
             return cc_1 + cc_2
         else:
