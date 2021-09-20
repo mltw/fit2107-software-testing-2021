@@ -31,23 +31,30 @@ class Calculator():
         # a_date = datetime.date(2015, 10, 10)
         # days = datetime.timedelta(5
 
-
         # print(self.weather_data)
 
-    # you may add more parameters if needed, you may modify the formula also.
-    def cost_calculation(self, initial_state, final_state, capacity, peak_period, holiday_percent,base_price):
-        assert peak_period >= 0 and peak_period <= 1 , "Please provide a valid peak_period, must be between 0 and 100"
-        assert holiday_percent >= 0 and holiday_percent <= 1 , "Please provide a valid holiday_percent, must be between 0 and 100"
-        non_peak = 0.5*(1-(peak_period))
-        peak = (1*(peak_period))
+    def cost_calculation(self, initial_state, final_state, capacity, peak_percent, holiday_percent,
+                         base_price, power, start_date, start_time):
+        # peak_period and holiday_percent are % of the total time, where it is either a peak period,
+        # or a holiday/weekday respectively.
+        # eg if holiday_percent = 0.5, it means 50% of the whole charging time is on some holiday/weekday
+        assert 0 <= peak_percent <= 1, "Please provide a valid peak_period, must be between 0 and 100"
+        assert 0 <= holiday_percent <= 1, "Please provide a valid holiday_percent, must be between 0 and 100"
+
+        non_peak = 0.5 * (1 - peak_percent)
+        peak = (1 * peak_percent)
         # print("original Base price : ", base_price)
-        base_price =base_price*(non_peak+peak)
+        base_price = base_price * (non_peak + peak)
         # print("base price : ", base_price)
 
-        surcharge_factor =  1.1*holiday_percent + 1*(1-holiday_percent)
+        surcharge_factor = 1.1 * holiday_percent + 1 * (1 - holiday_percent)
         # print("surcharge_factor : ",surcharge_factor)
 
-        cost = (int(final_state) - int(initial_state)) / 100 * int(capacity) * base_price / 100 * surcharge_factor
+        energy_drawn_by_car = (int(final_state) - int(initial_state)) / 100 * int(capacity)
+        print("energy_drawn_by_car " + str(energy_drawn_by_car))
+        energy_solar = self.calculate_solar_energy(start_date, start_time, initial_state, final_state, capacity, power)
+        print("energy_Solar " + str(energy_solar))
+        cost = max((energy_drawn_by_car - energy_solar) * base_price / 100 * surcharge_factor, 0)
         return cost
 
     # you may add more parameters if needed, you may also modify the formula.
