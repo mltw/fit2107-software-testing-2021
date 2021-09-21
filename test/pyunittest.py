@@ -7,13 +7,13 @@ class TestCalculator(unittest.TestCase):
     # you may create more test methods
     # you may add parameters to test methods
     # this is an example
-    def test_cost(self):
-        self.calculator = Calculator(5000, "14/09/2021")
-        self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 1, 1, 7.5, 3.6, "14/09/2021", "08:00"), 2),
-                         0.02)
-
-        self.calculator = Calculator(6001, "01/08/2021")
-        self.assertEqual(round(self.calculator.cost_calculation(0, 30, 90, 1, 1, 5, 2, "01/08/2021", "07:00"), 2), 0)
+    # def test_cost(self):
+    #     self.calculator = Calculator(5000, "14/09/2021")
+    #     self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 1, 1, 7.5, 3.6, "14/09/2021", "08:00"), 2),
+    #                      0.02)
+    #
+    #     self.calculator = Calculator(6001, "01/08/2021")
+    #     self.assertEqual(round(self.calculator.cost_calculation(0, 30, 90, 1, 1, 5, 2, "01/08/2021", "07:00"), 2), 0)
 
         # ----------------------------- Old tests:---------------------------------
         # self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 1, 0, 20, 36, "14/9/2021", "08:00"), 2),
