@@ -1,21 +1,34 @@
-from app.calculator import *
+from ..app.calculator import *
 import unittest
-
+import datetime
 
 class TestCalculator(unittest.TestCase):
 
     # you may create more test methods
     # you may add parameters to test methods
     # this is an example
-    def test_cost(self):
+    def test_cost_v2(self):
         self.calculator = Calculator(5000, "14/09/2021")
         self.calculator = Calculator(5000, "14/9/2021")
         # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
-        self.assertEqual(round(self.calculator.cost_calculation(29, 37, 42, 1, 1, 7.5), 2), 0.28)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 1, 0, 20), 2), 8.51)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 0, 0, 20), 2), 4.26)
-        self.assertEqual(round(self.calculator.cost_calculation(7, 83, 56, 0.14, 0, 20), 2), 4.85)
-        self.assertRaises(AssertionError, self.calculator.cost_calculation, 7, 83, 56, -14, 1, 20)
+        # start time before peak, end time before peak, single day
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/9/2021","5:30"),5.5)
+        # start time before peak, end time before off peak, single day, multiple hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/9/2021","5:30"),4.2)
+        # start time after 6, end time before 18, single day, within single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/9/2021","6:10"),22)
+        # starttime after 6, endtime before 18, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/9/2021","6:10"),4.4)
+        # starttime after 6, endtime after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/9/2021","17:55"),19.33)
+        # starttime after 18, endtime before 18, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/9/2021","19:00"),2.2)
+        # starttime after 18, endtime after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/9/2021","19:00"),11)
+        # starttime after 18, endtime after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/9/2021","23:55"),10.24)
+        # starttime after 18, endtime next day , multiple hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/9/2021","23:55"),2.20)
 
     def test_time(self):
         self.calculator = Calculator(5000, "14/09/2021")
@@ -25,139 +38,21 @@ class TestCalculator(unittest.TestCase):
     def test_holiday(self):
         self.calculator = Calculator(5000, "14/09/2021")
         # test public holiday
-        self.assertEqual(self.calculator.is_holiday("25/12/2021"), True)
-        self.assertEqual(self.calculator.is_holiday("01/12/2008"), True)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021,12,25)), True)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2008,12,1)), True)
         # no holiday / weekdays
-        self.assertEqual(self.calculator.is_holiday("14/09/2021"), True)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021,9,14)), True)
         # test weekends
-        self.assertEqual(self.calculator.is_holiday("12/09/2021"), False)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021,9,12)), False)
         # test school holidays ?
 
     def test_peak(self):
         self.calculator = Calculator(5000, "14/09/2021")
-        self.assertEqual(self.calculator.is_peak("14:04"), True)
-        self.assertEqual(self.calculator.is_peak("06:00"), True)
-        self.assertEqual(self.calculator.is_peak("18:00"), True)
-        self.assertEqual(self.calculator.is_peak("05:59"), False)
-        self.assertEqual(self.calculator.is_peak("18:01"), False)
-
-    def test_peak_period(self):
-        self.calculator = Calculator(5000, "14/09/2021")
-        self.assertEqual(self.calculator.peak_period("17:50", 7, 83, 56, 36), 0.1412)
-        # test multiple days charging
-        self.assertEqual(self.calculator.peak_period("17:50", 0, 100, 56, 3.6), 0.2288)
-        # test multiple days charging
-        self.assertEqual(self.calculator.peak_period("17:50", 0, 100, 100, 0.8), 0.4813)
-        self.assertEqual(self.calculator.peak_period("14:50", 7, 83, 56, 36), 1)
-
-        # test starting from non-peak (6am) ends on peak on same day
-        self.assertEqual(self.calculator.peak_period("05:50", 7, 83, 56, 36), 0.8588)
-        # test starting from non-peak (6pm) ends on non-peak on same day
-        self.assertEqual(self.calculator.peak_period("18:00", 7, 83, 56, 36), 0)
-        self.assertEqual(self.calculator.peak_period("18:01", 7, 83, 56, 36), 0)
-        # test starting from non-peak (4am) ends on non-peak on same day
-        self.assertEqual(self.calculator.peak_period("01:50", 7, 83, 56, 36), 0)
-        # test starting from non-peak (6am) ends on peak on different day
-        total = self.calculator.time_calculation(0, 100, 100, 0.8)
-        total_time = (self.calculator.time_calculation(0, 100, 100, 0.8) + 5.83333) - 24
-        day = total_time // 24
-        remained_time = (total_time) % 24
-        add = 0
-        if remained_time >= 18:
-            add = 12
-        else:
-            if remained_time < 6:
-                add = 0
-            else:
-                add = remained_time - 6
-        self.assertEqual(self.calculator.peak_period("05:50", 0, 100, 100, 0.8),
-                         round((12 + day * 12 + add) / total, 4))
-        # test starting from non-peak (6pm) ends on peak on different day
-        total = self.calculator.time_calculation(0, 100, 100, 0.8)
-        total_time = (self.calculator.time_calculation(0, 100, 100, 0.8) + 18) - 24
-        day = total_time // 24
-        remained_time = (total_time) % 24
-        add = 0
-        if remained_time >= 18:
-            add = 12
-        else:
-            if remained_time < 6:
-                add = 0
-            else:
-                add = remained_time - 6
-        self.assertEqual(self.calculator.peak_period("18:00", 0, 100, 100, 0.8), (0 + day * 12 + add) / total)
-        # test starting from non-peak (6am) ends on non_peak on different day
-        # test starting from non-peak (6pm) ends on non_peak on different day
-        # test starting from peak ends on non_peak on same day
-        # test starting from peak ends on peak on same day
-        total = self.calculator.time_calculation(0, 100, 100, 0.8)
-        total_time = (self.calculator.time_calculation(0, 100, 100, 0.8) + 4) - 24
-        day = total_time // 24
-        remained_time = (total_time) % 24
-        if remained_time >= 18:
-            add = 12
-        else:
-            if remained_time < 6:
-                add = 0
-            else:
-                add = remained_time - 6
-        self.assertEqual(self.calculator.peak_period("04:00", 0, 100, 100, 0.8), (12 + day * 12 + add) / total)
-        # test starting from peak ends on non_peak on different day
-        # test starting from peak ends on peak on different day
-
-    def test_holiday_temp(self):
-        self.calculator = Calculator(5000, "14/09/2021")
-        final_state = 100
-        initial_state = 0
-        capacity = 300
-        power = 2.9
-        # time is 103.45 hours
-        time = (final_state - initial_state) / 100 * capacity / power
-        # 18/09/2021 -- Weekend 106.45  03:00 --> 24:00  (21.03 hrs)
-        # 19/09/2021 -- Weekend 82.45   (24hrs)
-        # 20/09/2021 -- Weekday 58.45   (24hrs)
-        # 21/09/2021 -- Weekday 34.45   (24hrs)
-        # 22/09/2021 -- Weekday 10.45    (10.45hrs)
-        # total time : 58.45
-        # percentage : 58.45 / 103.45
-        self.assertEqual(
-            self.calculator.is_holiday_temp("18/09/2021", initial_state, final_state, capacity, power, "03:00"),
-            round((58.45 / 103.45), 4))
-        final_state = 100
-        initial_state = 0
-        capacity = 300
-        power = 100
-        # time is 3.0 hours
-        time = (final_state - initial_state) / 100 * capacity / power
-        # 18/09/2021 -- Weekend 3  03:00 --> 06:00  (3hrs)
-        # total holiday time : 0
-        # percentage : 0%
-        self.assertEqual(
-            self.calculator.is_holiday_temp("18/09/2021", initial_state, final_state, capacity, power, "03:00"), 0)
-        # 20/09/2021 -- Weekday 3  03:00 --> 06:00  (3hrs)
-        # total holiday time : 3
-        # percentage : 1
-        self.assertEqual(
-            self.calculator.is_holiday_temp("20/09/2021", initial_state, final_state, capacity, power, "03:00"), 1)
-        # test if minute is working for this case
-        self.assertEqual(
-            self.calculator.is_holiday_temp("20/09/2021", initial_state, final_state, capacity, power, "03:30"), 1)
-        final_state = 100
-        initial_state = 0
-        capacity = 300
-        power = 2.9
-        # time is 103.45 hours
-        time = (final_state - initial_state) / 100 * capacity / power
-        # 21/09/2021 -- Weekday 106.45  03:00 --> 24:00  (21.00 hrs)
-        # 22/09/2021 -- Weekday 82.45   (24hrs)
-        # 23/09/2021 -- Weekday 58.45   (24hrs)
-        # 24/09/2021 -- Weekday 34.45   (24hrs)
-        # 25/09/2021 -- Weekend 10.45    (10.45hrs)
-        # total time : 93
-        # percentage : 93 / 103.45
-        self.assertEqual(
-            self.calculator.is_holiday_temp("21/09/2021", initial_state, final_state, capacity, power, "03:00"),
-            round(93 / 103.45, 4))
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,4)), True)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,6)), True)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,18)), True)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,5,59)), False)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,18,1)), False)
 
     # def test_get_duration(self):
     #     self.calculator = Calculator(5000,"14/09/2021")
