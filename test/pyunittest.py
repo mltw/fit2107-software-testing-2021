@@ -1,4 +1,4 @@
-from ..app.calculator import *
+from app.calculator import *
 import unittest
 import datetime
 
