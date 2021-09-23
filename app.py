@@ -49,17 +49,34 @@ def operation_result():
         # you may change the logic as your like
         # duration = calculator.get_duration(start_time)
 
-        peak_period = calculator.peak_period(start_time,initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
-        holiday_percent = calculator.is_holiday_temp(start_date,initial_charge, final_charge, battery_capacity,calculator.get_power(charger_configuration), start_time)
+        peak_period = calculator.peak_period(start_time,initial_charge, final_charge, battery_capacity,
+                                             calculator.get_power(charger_configuration))
+        holiday_percent = calculator.is_holiday_temp(start_date,initial_charge, final_charge, battery_capacity,
+                                                     calculator.get_power(charger_configuration), start_time)
         print(peak_period,holiday_percent)
-        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, peak_period,holiday_percent,calculator.get_price(charger_configuration))
+        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, peak_period, holiday_percent,
+                                           calculator.get_price(charger_configuration),
+                                           calculator.get_power(charger_configuration), start_date, start_time)
 
-        time = calculator.time_calculation(initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
+        time = calculator.time_calculation(initial_charge, final_charge, battery_capacity,
+                                           calculator.get_power(charger_configuration))
+
+        # format outputs
+        if time < 1:
+            time = str(int(time*60)) + " minute(s)"
+        else:
+            arr = str(time).split('.')
+            hour = arr[0]
+            minute = int(int(arr[1])/100*60)
+            time = str(hour) + " hour(s) " + str(minute) + " minute(s)"
+
+        cost = "$" + str(round(cost, 2))
 
         # you may change the return statement also
         
         # values of variables can be sent to the template for rendering the webpage that users will see
-        return render_template('calculator.html', cost = cost, time = time, calculation_success = True, form = calculator_form)
+        return render_template('calculator.html', cost = cost, time = time, calculation_success = True,
+                               form = calculator_form)
         # return render_template('calculator.html', calculation_success=True, form=calculator_form)
 
     else:
