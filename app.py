@@ -51,12 +51,25 @@ def operation_result():
 
         cost = calculator.cost_calculation_v2(initial_charge, final_charge, battery_capacity,calculator.get_price(charger_configuration),calculator.get_power(charger_configuration), start_date,start_time)
 
-        time = calculator.time_calculation(initial_charge, final_charge, battery_capacity, calculator.get_power(charger_configuration))
+        time = calculator.time_calculation(initial_charge, final_charge, battery_capacity,
+                                           calculator.get_power(charger_configuration))
+
+        # format outputs
+        if time < 1:
+            time = str(int(time*60)) + " minute(s)"
+        else:
+            arr = str(time).split('.')
+            hour = arr[0]
+            minute = int(int(arr[1])/100*60)
+            time = str(hour) + " hour(s) " + str(minute) + " minute(s)"
+
+        cost = "$" + str(round(cost, 2))
 
         # you may change the return statement also
         
         # values of variables can be sent to the template for rendering the webpage that users will see
-        return render_template('calculator.html', cost = cost, time = time, calculation_success = True, form = calculator_form)
+        return render_template('calculator.html', cost = cost, time = time, calculation_success = True,
+                               form = calculator_form)
         # return render_template('calculator.html', calculation_success=True, form=calculator_form)
 
     else:
