@@ -49,14 +49,7 @@ def operation_result():
         # you may change the logic as your like
         # duration = calculator.get_duration(start_time)
 
-        peak_period = calculator.peak_period(start_time,initial_charge, final_charge, battery_capacity,
-                                             calculator.get_power(charger_configuration))
-        holiday_percent = calculator.is_holiday_temp(start_date,initial_charge, final_charge, battery_capacity,
-                                                     calculator.get_power(charger_configuration), start_time)
-        print(peak_period,holiday_percent)
-        cost = calculator.cost_calculation(initial_charge, final_charge, battery_capacity, peak_period, holiday_percent,
-                                           calculator.get_price(charger_configuration),
-                                           calculator.get_power(charger_configuration), start_date, start_time)
+        cost = calculator.cost_calculation_v2(initial_charge, final_charge, battery_capacity,calculator.get_price(charger_configuration),calculator.get_power(charger_configuration), start_date,start_time)
 
         time = calculator.time_calculation(initial_charge, final_charge, battery_capacity,
                                            calculator.get_power(charger_configuration))

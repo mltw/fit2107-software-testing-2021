@@ -33,140 +33,73 @@ class Calculator():
 
         # print(self.weather_data)
 
-    def cost_calculation(self, initial_state, final_state, capacity, peak_percent, holiday_percent,
-                         base_price, power, start_date, start_time):
-        # peak_period and holiday_percent are % of the total time, where it is either a peak period,
-        # or a holiday/weekday respectively.
-        # eg if holiday_percent = 0.5, it means 50% of the whole charging time is on some holiday/weekday
-        assert 0 <= peak_percent <= 1, "Please provide a valid peak_period, must be between 0 and 100"
-        assert 0 <= holiday_percent <= 1, "Please provide a valid holiday_percent, must be between 0 and 100"
+    # you may add more parameters if needed, you may modify the formula also.
+    def cost_calculation_v2 (self, initial_state, final_state, capacity,base_price,power,start_date,start_time):
+        date = start_date.split('/')
+        time = start_time.split(':')
+        current_datetime = datetime(int(date[2]),int(date[1]),int(date[0]),int(time[0]),int(time[1]))
 
-        non_peak = 0.5 * (1 - peak_percent)
-        peak = (1 * peak_percent)
-        # print("original Base price : ", base_price)
-        base_price = base_price * (non_peak + peak)
-        # print("base price : ", base_price)
+        base_price =base_price
+        surcharge_factor =  1.1
+        total_time = self.time_calculation(initial_state, final_state, capacity,power)
+        total_cost = 0
 
-        surcharge_factor = 1.1 * holiday_percent + 1 * (1 - holiday_percent)
-        # print("surcharge_factor : ",surcharge_factor)
-
-        energy_drawn_by_car = (int(final_state) - int(initial_state)) / 100 * int(capacity)
-        print("energy_drawn_by_car " + str(energy_drawn_by_car))
-        energy_solar = self.calculate_solar_energy(start_date, start_time, initial_state, final_state, capacity, power)
-        print("energy_Solar " + str(energy_solar))
-        cost = max((energy_drawn_by_car - energy_solar) * base_price / 100 * surcharge_factor, 0)
-        return cost
+        first_hour_datetime = datetime(int(date[2]),int(date[1]),int(date[0]),int(time[0]),0) + timedelta(hours=1)
+        time_difference = first_hour_datetime - current_datetime
+        minute_difference = time_difference.total_seconds()/60
+        hour_difference = minute_difference/60
+        # calculate the cost for the first hour
+        # if the first hour contains all the time
+        if total_time <= hour_difference :
+            price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            total_cost = (float(final_state) - float(initial_state)) / 100 * float(capacity) * price / 100 * surcharge
+            return total_cost
+        else :
+            price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            partial_initial_state = float(initial_state)
+            partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state))/total_time) * hour_difference
+            total_cost += (partial_final_state-partial_initial_state)/100 * float(capacity)* price / 100 * surcharge
+            # print("tc 1 :" ,total_cost,partial_initial_state,partial_final_state,total_time)
+            current_datetime = first_hour_datetime
+            temp_total_time = total_time - hour_difference
+            while temp_total_time >= 1 :
+                temp_total_time -= 1
+                current_datetime += timedelta(minutes=30)
+                price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                partial_initial_state = partial_final_state
+                partial_final_state += ((float(final_state) - float(initial_state))/total_time)
+                total_cost += (partial_final_state-partial_initial_state)/100 * float(capacity)* price / 100 * surcharge
+                current_datetime += timedelta(minutes=30)
+            # print("tc 2 : ",total_cost,partial_initial_state,partial_final_state)
+            if temp_total_time > 0 :
+                total_minute = round(temp_total_time*60,0)
+                current_datetime += timedelta(minutes=total_minute)
+                price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                partial_initial_state = partial_final_state
+                partial_final_state = float(final_state)
+                # print("total_minute : ", total_minute,partial_final_state,partial_initial_state)
+                total_cost += (partial_final_state-partial_initial_state)/100 * float(capacity)* price / 100 * surcharge
+            return round(total_cost,2)
 
     # you may add more parameters if needed, you may also modify the formula.
     def time_calculation(self, initial_state, final_state, capacity, power):
-        time = (int(final_state) - int(initial_state)) / 100 * int(capacity) / power
+        time = (float(final_state) - float(initial_state)) / 100 * float(capacity) / power
         return round(time,2)
 
 
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
-    def is_holiday(self, start_date):
-        aus_holidays = holidays.Australia()
-        date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
-        return date_time_obj in aus_holidays or date_time_obj.weekday() <= 4
-
-    def is_holiday_temp_2(self, start_date):
+    def is_holiday_v2(self, start_date):
         aus_holidays = holidays.Australia()
         return start_date in aus_holidays or start_date.weekday() <= 4
 
-    def is_holiday_temp(self, start_date,initial_state, final_state, capacity, power,start_time):
-        time = self.time_calculation(initial_state, final_state, capacity, power)
-
-        time_array = start_time.split(':')
-        st_hour = int(time_array[0])
-        st_minute = int(time_array[1])
-        new_start_date = datetime.strptime(start_date, '%d/%m/%Y')
-
-        num_of_day = time//24
-        remaining_time = round(time%24,2)
-
-        expected_end_time = st_hour*60 + st_minute + time*60
-        # If it does not exceed first day
-        if (st_hour*60 + st_minute) + time*60 <= 24*60 :
-            # if holiday return 100%, it means 100% holiday
-            if self.is_holiday_temp_2(new_start_date):
-                return 1
-            # else 0% holiday
-            else :
-                return 0
-        # if it exceed first day, more than 1 day
-        else :
-            # if first day is holiday, add it into holiday_minute_total
-            if self.is_holiday_temp_2(new_start_date):
-                holiday_minute_total = 24*60 - st_hour*60 - st_minute
-            else :
-                holiday_minute_total = 0
-            next_date = new_start_date + timedelta(hours=24)
-            expected_end_time -= 24*60
-            while expected_end_time >= 24*60:
-                expected_end_time -= 24*60
-                if self.is_holiday_temp_2(next_date) :
-                    holiday_minute_total += 24*60
-                next_date += timedelta(hours=24)
-            # last day
-            if self.is_holiday_temp_2(next_date):
-                holiday_minute_total += expected_end_time
-            return round(holiday_minute_total/(time*60),4)
-
-    def is_peak(self, start_time):
-        time_array = start_time.split(':')
-        st_hour = int(time_array[0])
-        st_minute = int(time_array[1])
-        date_time_obj = time(int(st_hour),int(st_minute))
-        non_peak_time_1 = time(6,0)
-        non_peak_time_2 = time(18,0)
-        return non_peak_time_1 <= date_time_obj <= non_peak_time_2
-
-    def peak_period(self, start_time,initial_state, final_state, capacity,power):
-        time_array = start_time.split(':')
-        st_hour = int(time_array[0])
-        st_minute = int(time_array[1])
-        given_time = int(st_hour)*60 +  int(st_minute)
-        expected_period = self.time_calculation(initial_state,final_state,capacity,power) * 60
-        expected_end = given_time + expected_period
-        new_start_time = int(st_hour) * 60 + int(st_minute)
-        total_peak_time = 0
-        if(self.is_peak(start_time)):
-            if expected_end <= 18*60:
-                return 1
-            else :
-                time_diff = expected_end - 18*60
-                total_peak_time = expected_period - time_diff
-        else :
-            if new_start_time < 6*60:
-                if expected_end < 6*60 :
-                    return 0
-                elif expected_end > 18*60:
-                    total_peak_time = 12*60
-                elif expected_end <= 18*60:
-                    total_peak_time = expected_end - 6*60
-                else :
-                    raise Exception("the expected in not peak before 6am is wrong")
-            elif new_start_time > 18*60:
-                if expected_end > 18*60 :
-                    total_peak_time = 0
-                else:
-                    raise Exception("the expected is wrong, it cannot be less than the start_time")
-
-        if expected_end > 24*60 :
-            expected_end -= 24*60
-            while expected_end > 24*60 :
-                total_peak_time += 12*60
-                expected_end -= 24*60
-
-            hour = int(expected_end // 60)
-            minute = int(expected_end % 60)
-            end_time = time(hour,minute)
-            if not end_time < time(6,0) :
-                if end_time > time(18,0):
-                    total_peak_time += 12*60
-                else:
-                    total_peak_time += expected_end - 6*60
-        return round(total_peak_time/expected_period,4)
+    def is_peak_v2(self,start_time):
+        non_peak_time_1 = datetime(start_time.year,start_time.month,start_time.day,6,0,0)
+        non_peak_time_2 = datetime(start_time.year,start_time.month,start_time.day,18,0,0)
+        return non_peak_time_1 <= start_time <= non_peak_time_2
 
     # def get_duration(self, start_time, initial_state, final_state, capacity, power):
     #     time_needed = self.time_calculation(initial_state, final_state, capacity, power)
@@ -696,6 +629,7 @@ class Calculator():
             return 50
         else :
             raise Exception("NO SUCH CONFIGURATION")
+
 
 
 # date_time_obj = datetime.strptime("28/02/2021" + " " + "22:02", '%d/%m/%Y %H:%M')
