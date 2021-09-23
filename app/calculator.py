@@ -35,6 +35,8 @@ class Calculator():
 
     # you may add more parameters if needed, you may modify the formula also.
     def cost_calculation_v2 (self, initial_state, final_state, capacity,base_price,power,start_date,start_time):
+        power_list = self.calculate_solar_energy_new(start_date, start_time, initial_state, final_state,capacity, power)
+        # print(power_list)
         date = start_date.split('/')
         time = start_time.split(':')
         current_datetime = datetime(int(date[2]),int(date[1]),int(date[0]),int(time[0]),int(time[1]))
@@ -53,17 +55,22 @@ class Calculator():
         if total_time <= hour_difference :
             price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
             surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
-            total_cost = (float(final_state) - float(initial_state)) / 100 * float(capacity) * price / 100 * surcharge
+            extra_power = power_list[0][2]
+            total_power = max((((float(final_state) - float(initial_state)) / 100) * float(capacity)) - extra_power,0)
+            total_cost = total_power * price / 100 * surcharge
             return total_cost
         else :
             price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
             surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
             partial_initial_state = float(initial_state)
             partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state))/total_time) * hour_difference
-            total_cost += (partial_final_state-partial_initial_state)/100 * float(capacity)* price / 100 * surcharge
+            extra_power = power_list[0][2]
+            total_power = max(((partial_final_state-partial_initial_state)/100) * float(capacity)-extra_power,0)
+            total_cost += total_power* price / 100 * surcharge
             # print("tc 1 :" ,total_cost,partial_initial_state,partial_final_state,total_time)
             current_datetime = first_hour_datetime
             temp_total_time = total_time - hour_difference
+            current_power = 1
             while temp_total_time >= 1 :
                 temp_total_time -= 1
                 current_datetime += timedelta(minutes=30)
@@ -71,8 +78,12 @@ class Calculator():
                 surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
                 partial_initial_state = partial_final_state
                 partial_final_state += ((float(final_state) - float(initial_state))/total_time)
-                total_cost += (partial_final_state-partial_initial_state)/100 * float(capacity)* price / 100 * surcharge
+                # use
+                extra_power= power_list[current_power][2]
+                total_power = max(((partial_final_state-partial_initial_state)/100) * float(capacity)-extra_power,0)
+                total_cost += total_power* price / 100 * surcharge
                 current_datetime += timedelta(minutes=30)
+                current_power += 1
             # print("tc 2 : ",total_cost,partial_initial_state,partial_final_state)
             if temp_total_time > 0 :
                 total_minute = round(temp_total_time*60,0)
@@ -81,8 +92,9 @@ class Calculator():
                 surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
                 partial_initial_state = partial_final_state
                 partial_final_state = float(final_state)
-                # print("total_minute : ", total_minute,partial_final_state,partial_initial_state)
-                total_cost += (partial_final_state-partial_initial_state)/100 * float(capacity)* price / 100 * surcharge
+                extra_power= power_list[current_power][2]
+                total_power = max(((partial_final_state-partial_initial_state)/100)* float(capacity) - extra_power,0)
+                total_cost += total_power* price / 100 * surcharge
             return round(total_cost,2)
 
     # you may add more parameters if needed, you may also modify the formula.
@@ -453,10 +465,10 @@ class Calculator():
         start_time = int(str(start_time[0:2]) + str(start_time[3:5]))
 
         end_time_hour = int(str(end_time)[0:2])
-        if end_time_hour == 0:
-            end_time_hour = 24
-        else:
-            pass
+        # if end_time_hour == 0:
+        #     end_time_hour = 24
+        # else:
+        #     pass
         end_time = int(str(end_time[0:2]) + str(end_time[3:5]))
 
         print(start_time_hour)
@@ -564,7 +576,7 @@ class Calculator():
         res = []
         # within a single day
         if end_time_hour + end_time_minute / 60 <= 23.59:
-            res.append(self.calculate_solar_energy_within_a_day_by_hour(start_date, start_time, end_time))
+            res+=(self.calculate_solar_energy_within_a_day_by_hour(start_date, start_time, end_time))
         else:
             date_time_obj = datetime.strptime(start_date + " " + start_time, '%d/%m/%Y %H:%M')
             date_time_after_charge = date_time_obj + timedelta(hours=charge_time)
@@ -576,14 +588,14 @@ class Calculator():
                                   + "/" + str(date_time_obj.date())[0:4]
                 # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
 
-                res.append(self.calculate_solar_energy_within_a_day_by_hour(charge_date_new, start_time_new, "23:59"))
+                res+=(self.calculate_solar_energy_within_a_day_by_hour(charge_date_new, start_time_new, "23:59"))
                 date_time_obj += timedelta(days=1)
                 start_time_new = "00:00"
 
             charge_date_new = str(date_time_obj.date())[8:10] \
                               + "/" + str(date_time_obj.date())[5:7] \
                               + "/" + str(date_time_obj.date())[0:4]
-            res.append(self.calculate_solar_energy_within_a_day_by_hour(charge_date_new, start_time_new, end_time))
+            res+=self.calculate_solar_energy_within_a_day_by_hour(charge_date_new, start_time_new, end_time)
 
         return res
 
