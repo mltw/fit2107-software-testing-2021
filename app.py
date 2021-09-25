@@ -29,6 +29,7 @@ def operation_result():
         start_time = request.form['StartTime']
         post_code = request.form["PostCode"]
         charger_configuration = request.form['ChargerConfiguration']
+        location_name = request.form['LocationName']
 
         lst = start_date.split('/')
         if len(lst[0]) == 1:
@@ -44,12 +45,19 @@ def operation_result():
         start_date = day + '/' + month + '/' + year
 
         # if valid, create calculator to calculate the time and cost
-        calculator = Calculator(post_code,start_date)
+        calculator = Calculator(post_code,start_date,location_name)
 
         # you may change the logic as your like
         # duration = calculator.get_duration(start_time)
 
-        cost = calculator.cost_calculation_v2(initial_charge, final_charge, battery_capacity,calculator.get_price(charger_configuration),calculator.get_power(charger_configuration), start_date,start_time)
+        cost = calculator.cost_calculation_v2(initial_charge, final_charge, battery_capacity,
+                                              calculator.get_price(charger_configuration),
+                                              calculator.get_power(charger_configuration),
+                                              start_date, start_time)
+        cost3 = calculator.cost_calculation_v3(initial_charge, final_charge, battery_capacity,
+                                               calculator.get_price(charger_configuration),
+                                               calculator.get_power(charger_configuration),
+                                               start_date, start_time)
 
         time = calculator.time_calculation(initial_charge, final_charge, battery_capacity,
                                            calculator.get_power(charger_configuration))
@@ -63,13 +71,17 @@ def operation_result():
             minute = int(int(arr[1])/100*60)
             time = str(hour) + " hour(s) " + str(minute) + " minute(s)"
 
-        cost = "$" + str(round(cost, 2))
+        if cost == '-':
+            cost = "Future date input, please refer to below cost"
+        else:
+            cost = "$" + str(round(cost, 2))
+        cost3 = "$" + str(round(cost3, 2))
 
         # you may change the return statement also
         
         # values of variables can be sent to the template for rendering the webpage that users will see
-        return render_template('calculator.html', cost = cost, time = time, calculation_success = True,
-                               form = calculator_form)
+        return render_template('calculator.html', cost = cost, time = time, cost3=cost3,
+                               calculation_success = True, form = calculator_form)
         # return render_template('calculator.html', calculation_success=True, form=calculator_form)
 
     else:
