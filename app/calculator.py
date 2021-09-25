@@ -8,16 +8,48 @@ from dateutil.relativedelta import relativedelta
 class Calculator():
     # you can choose to initialise variables here, if needed.
 
-    def __init__(self, postcode, date):
+    def __init__(self, postcode, date, location_name="ELPHIN"):
         location_link = "http://118.138.246.158/api/v1/location"
         postcode = str(postcode)
         postcode_PARAMS = {'postcode':postcode}
         location_r = requests.get(url=location_link,params=postcode_PARAMS)
         self.location_data = location_r.json()
+        # print(self.location_data)
 
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        self.location_id = self.location_data[0]['id']
-        date_time_obj = datetime.strptime(date, '%d/%m/%Y')
+        self.location_id = -1
+        # find the correct location's id
+        for i in range(len(self.location_data)):
+            if self.location_data[i]["name"].lower() == location_name.lower():
+                self.location_id = self.location_data[i]['id']
+                break
+            else:
+                pass
+        # if the user input location name is invalid, just take the first location
+        if self.location_id == -1:
+            self.location_id = self.location_data[0]['id']
+
+        # ----------------------------------
+        max_date_allowed = datetime.now() - timedelta(days=2)
+
+        current_date = datetime.strptime(date, '%d/%m/%Y')
+
+        # since the API can only handle dates up to current date - 2 days, get the closest reference date first
+        if current_date <= max_date_allowed:
+            date_time_obj = current_date
+        else:
+            ref_date_per_year = current_date
+            # future, so find reference dates
+            while ref_date_per_year.year != datetime.now().year:
+                ref_date_per_year -= relativedelta(years=1)
+
+            if ref_date_per_year <= current_date:
+                date_time_obj = ref_date_per_year
+            else:
+                date_time_obj = ref_date_per_year - relativedelta(years=1)
+        # ----------------------------------
+
+        # date_time_obj = datetime.strptime(date, '%d/%m/%Y')
         month = str(date_time_obj.month)
         if len(month) != 2 :
             month = "0" + month
@@ -25,13 +57,24 @@ class Calculator():
         if len(day)!=2:
             day = "0" + day
         # new_date = "2020" + "-" + "02" + "-" + "22"
-        new_date = str(date_time_obj.year) + "-" + month + day
-        self.weather_PARAMS = {'location' : self.location_id, 'date': new_date}
-        self.weather_r = requests.get(url=self.weather_link,params=self.weather_PARAMS)
+        new_date = str(date_time_obj.year) + "-" + month + "-" + day
+        # print("new_date", new_date)
+        self.weather_PARAMS = {'location': self.location_id, 'date': new_date}
+        self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
+        # print(self.weather_data)
 
     # you may add more parameters if needed, you may modify the formula also.
     def cost_calculation_v2(self, initial_state, final_state, capacity,base_price,power,start_date,start_time):
+        # requirement 2 can't take in future dates, so just return a '-'
+        max_date_allowed = datetime.now() - timedelta(days=2)
+
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+
+        if current_date <= max_date_allowed:
+            pass
+        else:
+            return '-'
         power_list = self.calculate_solar_energy_new(start_date, start_time, initial_state, final_state,capacity, power)
         print('v2', power_list)
         date = start_date.split('/')
@@ -369,6 +412,7 @@ class Calculator():
 
         # end time format 03:22 -> [3,22]
         end_time = end_time.split(':')
+        # print('et', end_time)
         end_time_as_integer = int(end_time[0] + end_time[1])
 
         if end_time_as_integer < start_time_as_integer:
@@ -580,6 +624,7 @@ class Calculator():
         start_time = int(str(start_time[0:2]) + str(start_time[3:5]))
 
         end_time_hour = int(str(end_time)[0:2])
+        end_time_minute = int(str(end_time)[3:5])
         end_time = int(str(end_time[0:2]) + str(end_time[3:5]))
 
         arr = []
@@ -589,13 +634,15 @@ class Calculator():
                 start_time_temp = start_time
                 end_time_temp_hour = start_time_hour
                 end_time_temp = end_time
+                end_time_temp_formatted = str(end_time_temp_hour) + ":" + str(end_time_minute)
             else:
                 end_time_temp_hour = start_time_hour + 1
                 start_time_temp = start_time
                 end_time_temp = int(str(end_time_temp_hour) + "00")
+                end_time_temp_formatted = str(end_time_temp_hour) + ":00"
 
             cc = self.get_cloud_cover(start_date, str(start_time_hour)+":"+ str(start_time_minute),
-                                      str(end_time_temp_hour)+":00")
+                                      end_time_temp_formatted)
             if ss >= start_time_temp >= sr:
                 if end_time_temp >= ss:
                     du = self.get_duration(str(start_time_temp), str(ss))
@@ -635,13 +682,24 @@ class Calculator():
             # past
             date_arr.append(current_date)
         else:
+            ref_date_per_year = current_date
             # future, so find reference dates
-            while current_date.year != datetime.now().year:
-                current_date -= relativedelta(years=1)
+            while ref_date_per_year.year != datetime.now().year:
+                ref_date_per_year -= relativedelta(years=1)
 
-            for i in range(3):
-                ref_date = current_date - relativedelta(years=i+1)
-                date_arr.append(ref_date)
+            if ref_date_per_year <= current_date:
+                # for cases when the nearest reference date (same year) is earlier than today's date
+                # eg start_date = 31/8/2022, today's date = 25/9/2021, nearest reference date = 31/8/2021 (valid)
+                # thus the reference dates are 31/8/2021, 31/8/2020, 31/8/2019
+                for i in range(3):
+                    date_arr.append(ref_date_per_year - relativedelta(years=i))
+            else:
+                # for cases otherwise
+                # eg start_date = 25/12/2022, today's date = 25/9/2021, nearest reference date = 25/12/2021 (invalid)
+                # thus the reference dates are 25/12/2020, 25/12/2019, 25/12/2018
+                for i in range(3):
+                    date_arr.append(ref_date_per_year - relativedelta(years=i+1))
+
 
         charge_time = self.time_calculation(initial_state, final_state, capacity, power)
         start_time_hour = int(start_time[0:2])
@@ -679,6 +737,7 @@ class Calculator():
             res = []
             # within a single day
             if end_time_hour + end_time_minute / 60 <= 23.59:
+                # print('end time ', end_time)
                 res += (self.calculate_solar_energy_within_a_day_by_hour_w_cc(new_start_date, start_time, end_time))
             else:
                 date_time_obj = datetime.strptime(new_start_date + " " + start_time, '%d/%m/%Y %H:%M')
@@ -749,6 +808,9 @@ class Calculator():
             raise Exception("NO SUCH CONFIGURATION")
 
 
+# calc = Calculator(5000, "14/09/2021")
+# print(calc)
+# self.assertEqual(calc.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
 
 # date_time_obj = datetime.strptime("28/02/2021" + " " + "22:02", '%d/%m/%Y %H:%M')
 # # date_time_str = str(date_time_obj) + " " + str(start_time)
