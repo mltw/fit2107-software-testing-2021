@@ -219,8 +219,13 @@ class Calculator():
 
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
     def is_holiday_v2(self, start_date):
+        """
+        Function that determines if a given date is deemed to be a surchargable date in Australia or not
+        :param start_date   : datetime object representing the starting date for charging
+        :return             : True if start_date is an Australian holiday or weekday, False otherwise
+        """
         aus_holidays = holidays.Australia()     # generate a set of dates which represent holidays in Australia
-        return start_date in aus_holidays or start_date.weekday() <= 4  # True if start_date is an Australian holiday or weekday
+        return start_date in aus_holidays or start_date.weekday() <= 4
 
     def is_peak_v2(self,start_time):
         non_peak_time_1 = datetime(start_time.year,start_time.month,start_time.day,6,0,0)
