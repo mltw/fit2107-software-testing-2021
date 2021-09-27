@@ -157,6 +157,14 @@
           </tr>
 
           <tr>
+            <td>{{ form.LocationName.label }}</td>
+            <td>
+              {# {{ form.LocationName }}#}
+              <input type="text" name="LocationName" id="LocationName" />
+            </td>
+          </tr>
+
+          <tr>
             <td>Click to submit:</td>
             <td>
               <input type="submit" value="Submit" />
@@ -186,8 +194,9 @@
 
         <div class="modal-body">
           {% if calculation_success == True %}
-            <p>Time calculation is: {{ time }}</p>
-            <p>Cost calculation is: {{ cost }}</p>
+            <p>Time calculation for requirement 2 is: {{ time }}</p>
+            <p>Cost calculation for requirement 2 is: {{ cost }}</p>
+            <p>Cost calculation for requirement 3 is: {{ cost3 }}</p>
 
           {% endif %}
 

@@ -14,15 +14,16 @@ class Calculator_Form(FlaskForm):
     StartTime = TimeField("Start Time", [DataRequired("Data is missing or format is incorrect")], format='%H:%M')
     ChargerConfiguration = StringField("Charger Configuration", [DataRequired()])
     PostCode = StringField("Post Code", [DataRequired()])
+    LocationName = StringField("Location Name", [DataRequired()])
 
     # use validate_ + field_name to activate the flask-wtforms built-in validator
     # this is an example for you
     def validate_BatteryPackCapacity(self, field):
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
-        elif not self.isfloat(field.data):
+        # if field.data is None:
+        #     raise ValidationError('Field data is none')
+        # elif field.data == '':
+        #     raise ValueError("cannot fetch data")
+        if not self.isfloat(field.data):
             raise ValueError("Battery pack capacity must be a number")
         elif float(field.data) < 0.65 or float(field.data) > 100:
             raise ValueError("Battery pack capacity must be a number between 0.65 and 100.00")
@@ -31,11 +32,11 @@ class Calculator_Form(FlaskForm):
     def validate_InitialCharge(self, field):
         # another example of how to compare initial charge with final charge
         # you may modify this part of the code
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
-        elif not self.isfloat(field.data):
+        # if field.data is None:
+        #     raise ValidationError('Field data is none')
+        # elif field.data == '':
+        #     raise ValueError("cannot fetch data")
+        if not self.isfloat(field.data):
             raise ValueError("Initial charge must be a number")
         elif float(field.data) < 0 or float(field.data) > 100:
             raise ValueError("Initial charge must be a number between 0 and 100")
@@ -44,11 +45,11 @@ class Calculator_Form(FlaskForm):
 
     # validate final charge here
     def validate_FinalCharge(self, field):
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
-        elif not self.isfloat(field.data):
+        # if field.data is None:
+        #     raise ValidationError('Field data is none')
+        # elif field.data == '':
+        #     raise ValueError("cannot fetch data")
+        if not self.isfloat(field.data):
             raise ValueError("Final charge must be a number")
         elif float(field.data) < 0 or float(field.data) > 100:
             raise ValueError("Final charge must be a number between initial charge and 100")
@@ -67,41 +68,47 @@ class Calculator_Form(FlaskForm):
         valid_date_str = '01-07-2008'
         valid_date_obj = datetime.strptime(valid_date_str, '%d-%m-%Y')
 
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
-        elif date_obj < valid_date_obj:
+        # if field.data is None:
+        #     raise ValidationError('Field data is none')
+        # elif field.data == '':
+        #     raise ValueError("cannot fetch data")
+        if date_obj < valid_date_obj:
             raise ValueError("Start date can only be after 1st July 2008")
 
     # validate start time here
-    def validate_StartTime(self, field):
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
+    # def validate_StartTime(self, field):
+    #     if field.data is None:
+    #         raise ValidationError('Field data is none')
+    #     elif field.data == '':
+    #         raise ValueError("cannot fetch data")
 
     # validate charger configuration here
     def validate_ChargerConfiguration(self, field):
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
-        elif not field.data.isdigit():
+        # if field.data is None:
+        #     raise ValidationError('Field data is none')
+        # elif field.data == '':
+        #     raise ValueError("cannot fetch data")
+        if not field.data.isdigit():
             raise ValueError("Charger configuration must be an integer between 1 and 8")
         elif int(field.data) < 1 or int(field.data) > 9:
             raise ValueError("Charger configuration must be an integer between 1 and 8")
 
     # validate postcode here
     def validate_PostCode(self, field):
-        if field.data is None:
-            raise ValidationError('Field data is none')
-        elif field.data == '':
-            raise ValueError("cannot fetch data")
-        elif not field.data.isdigit():
+        # if field.data is None:
+        #     raise ValidationError('Field data is none')
+        # elif field.data == '':
+        #     raise ValueError("cannot fetch data")
+        if not field.data.isdigit():
             raise ValueError("Postcode must be an integer between 200 and 9729")
         elif int(field.data) < 200 or int(field.data) > 9729:
             raise ValueError("Postcode must be an integer between 200 and 9729")
+
+    # def validate_LocationName(self, field):
+    #     if field.data is None:
+    #         raise ValidationError('Field data is none')
+    #     elif field.data == '':
+    #         raise ValueError("cannot fetch data")
 
     # helper function to check if a value is a float
     def isfloat(self, value):

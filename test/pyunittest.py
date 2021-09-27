@@ -30,6 +30,19 @@ class TestCalculator(unittest.TestCase):
         # starttime after 18, endtime next day , multiple hour
         self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
 
+    def test_cost_v3(self):
+        self.calculator = Calculator(5000, "14/09/2021")
+        # self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
+        # print(self.calculator.cost_calculation_v3())
+        print(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "14/09/2021", "14:00"))
+        print(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "14/09/2021", "14:00"))
+
+    def test_calculate_solar_energy_new_w_cc(self):
+        self.calculator = Calculator(7250, "22/02/2022")
+        print(self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
+                                                              initial_state=0, final_state=37.5,
+                                                              capacity=4, power=2.0))
+
     def test_time(self):
         self.calculator = Calculator(5000, "14/09/2021")
         self.assertEqual(round(self.calculator.time_calculation(29, 37, 42, 3.6), 2), round(56 / 60, 2))
@@ -101,17 +114,13 @@ class TestCalculator(unittest.TestCase):
 
     def test_get_cloud_cover(self):
         self.calculator = Calculator(5000, "22/02/2020")
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "17:30", "22/02/2020", "18:15"), 1)
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "17:30", "22/02/2020", "17:59"), 1)
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "18:00", "22/02/2020", "18:26"), 0)
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "00:00", "22/02/2020", "00:59"), 0)
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "23:15", "23/02/2020", "00:15"), 0)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "17:30", "17:59"), 1)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "18:00", "18:26"), 0)
+        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "00:00", "00:59"), 0)
         self.assertRaises(ValueError,
-                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "23/02/2020", "00:15"))
+                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "23:05"))
         self.assertRaises(ValueError,
-                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "24/02/2020", "23:05"))
-        self.assertRaises(ValueError,
-                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "24/02/2020", "21:05"))
+                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "21:05"))
 
     def test_get_day_light_length(self):
         self.calculator = Calculator(5000, "02/02/2021")
