@@ -12,23 +12,23 @@ class TestCalculator(unittest.TestCase):
         self.calculator = Calculator(5000, "14/9/2021")
         # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
         # start time before peak, end time before peak, single day
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/9/2021","5:30"),5.5)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
         # start time before peak, end time before off peak, single day, multiple hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/9/2021","5:30"),4.2)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","05:30"),2.43)
         # start time after 6, end time before 18, single day, within single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/9/2021","6:10"),22)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","06:10"),22)
         # starttime after 6, endtime before 18, single day, multiple hours
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/9/2021","6:10"),4.4)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","06:10"),2.38)
         # starttime after 6, endtime after 18, single day, single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/9/2021","17:55"),19.33)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","17:55"),19.16)
         # starttime after 18, endtime before 18, single day, multiple hours
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/9/2021","19:00"),2.2)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
         # starttime after 18, endtime after 18, single day, single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/9/2021","19:00"),11)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","19:00"),11)
         # starttime after 18, endtime after 18, single day, single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/9/2021","23:55"),10.24)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/09/2021","23:55"),10.24)
         # starttime after 18, endtime next day , multiple hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/9/2021","23:55"),2.20)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
 
     def test_time(self):
         self.calculator = Calculator(5000, "14/09/2021")
