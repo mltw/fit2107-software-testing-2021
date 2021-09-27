@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 class Calculator():
     # you can choose to initialise variables here, if needed.
 
-    def __init__(self, postcode, date, location_name="ELPHIN"):
+    def __init__(self, postcode, date, location_name=""):
         location_link = "http://118.138.246.158/api/v1/location"
         postcode = str(postcode)
         postcode_PARAMS = {'postcode':postcode}
@@ -20,6 +20,8 @@ class Calculator():
         self.location_id = -1
         # find the correct location's id
         for i in range(len(self.location_data)):
+            # print(self.location_data[i]["name"].lower())
+            # print(self.location_data[i]["name"].lower() == location_name.lower())
             if self.location_data[i]["name"].lower() == location_name.lower():
                 self.location_id = self.location_data[i]['id']
                 break
@@ -28,7 +30,7 @@ class Calculator():
         # if the user input location name is invalid, just take the first location
         if self.location_id == -1:
             self.location_id = self.location_data[0]['id']
-
+        # print(self.location_id)
         # ----------------------------------
         max_date_allowed = datetime.now() - timedelta(days=2)
 
@@ -62,7 +64,7 @@ class Calculator():
         self.weather_PARAMS = {'location': self.location_id, 'date': new_date}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
-        # print(self.weather_data)
+        # print('new', self.weather_data)
 
     # you may add more parameters if needed, you may modify the formula also.
     def cost_calculation_v2(self, initial_state, final_state, capacity,base_price,power,start_date,start_time):
@@ -225,7 +227,7 @@ class Calculator():
     # to be acquired through API
     def get_sun_hour(self, start_date):
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        self.location_id = self.location_data[0]['id']
+        # self.location_id = self.location_data[0]['id']
 
         year = str(start_date)[6:10]
         month = str(start_date)[3:5]
@@ -259,7 +261,7 @@ class Calculator():
         # Meng Yew approved this
         # per day basis
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        self.location_id = self.location_data[0]['id']
+        # self.location_id = self.location_data[0]['id']
 
         date = start_date.split('/')
         year = date[2]
@@ -384,7 +386,7 @@ class Calculator():
     def get_cloud_cover(self, start_date, start_time, end_time):
         # this method should be called within the same start and end time hour
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        self.location_id = self.location_data[0]['id']
+        # self.location_id = self.location_data[0]['id']
         date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         month = str(date_time_obj.month)
         if len(month) != 2:
@@ -488,7 +490,7 @@ class Calculator():
 
         # get sunrise and sunset time
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        self.location_id = self.location_data[0]['id']
+        # self.location_id = self.location_data[0]['id']
 
         year = str(start_date)[6:10]
         month = str(start_date)[3:5]
@@ -601,7 +603,7 @@ class Calculator():
 
         # get sunrise and sunset time
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        self.location_id = self.location_data[0]['id']
+        # self.location_id = self.location_data[0]['id']
 
         year = str(start_date)[6:10]
         month = str(start_date)[3:5]
@@ -641,6 +643,8 @@ class Calculator():
                 end_time_temp = int(str(end_time_temp_hour) + "00")
                 end_time_temp_formatted = str(end_time_temp_hour) + ":00"
 
+            # print('st', str(start_time_hour)+":"+ str(start_time_minute))
+            # print('et', end_time_temp_formatted)
             cc = self.get_cloud_cover(start_date, str(start_time_hour)+":"+ str(start_time_minute),
                                       end_time_temp_formatted)
             if ss >= start_time_temp >= sr:
@@ -660,6 +664,7 @@ class Calculator():
             else:  # = elif start_time > ss
                 du = 0
 
+            # print('si', si)
             solar_energy = si * du / dl * (1 - cc / 100) * 50 * 0.20
 
             arr.append([start_time_temp, end_time_temp, solar_energy])
