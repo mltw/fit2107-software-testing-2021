@@ -75,13 +75,20 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 10, 4)), True)   # Labour Day on a Monday
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 1, 26)), True)   # Australia Day on a Tuesday
     
-    def test_peak(self):
+    def test_is_peak_v2(self):
         self.calculator = Calculator(5000, "14/09/2021")
-        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,4)), True)
-        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,6)), True)
-        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,18)), True)
-        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,5,59)), False)
-        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,18,1)), False)
+
+        # 2 tests for times within peak hours
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 14, 4)), True)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 16, 6)), True)
+
+        # 2 tests for times outside peak hours
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 5, 40)), False)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 20, 45)), False)
+
+        # 2 tests for times directly on peak hour thresholds
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 6, 0)), True)
+        self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 18, 0)), True)
 
     # def test_get_duration(self):
     #     self.calculator = Calculator(5000,"14/09/2021")
