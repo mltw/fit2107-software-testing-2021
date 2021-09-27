@@ -113,8 +113,10 @@ class TestCalculator(unittest.TestCase):
     # def test_get_cloud_cover(self):
     #     self.calculator = Calculator(5000,"14/09/2021")
     #     self.calculator.calculate_solar_energy()
-    def test_power(self):
+    def test_get_power(self):
         self.calculator = Calculator(5000, "14/09/2021")
+
+        # test case for each possible charger configuration
         self.assertEqual(self.calculator.get_power(1), 2.0)
         self.assertEqual(self.calculator.get_power(2), 3.6)
         self.assertEqual(self.calculator.get_power(3), 7.2)
