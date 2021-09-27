@@ -204,8 +204,17 @@ class Calculator():
 
     # you may add more parameters if needed, you may also modify the formula.
     def time_calculation(self, initial_state, final_state, capacity, power):
+        """
+        Function that calculates the duration to charge the vehicle from initial_state to final_state given its battery capacity
+        and power supplied by the charger
+        :param initial_state : float between 0 and 100 at most equal to final_state 
+        :param final_state   : float between 0 and 100 at least equal to initial_state
+        :param capacity      : float between 0.65 and 100
+        :param power         : float value according to available charger configurations
+        :return              : float representation of charging time required correct to two decimal places in hours
+        """
         time = (float(final_state) - float(initial_state)) / 100 * float(capacity) / power
-        return round(time,2)
+        return round(time, 2)
 
 
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
