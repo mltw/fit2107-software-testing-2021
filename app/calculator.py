@@ -805,10 +805,8 @@ class Calculator():
             return 36
         elif charger_configuration == 7:
             return 90
-        elif charger_configuration == 8:
-            return 350
         else:
-            raise Exception("NO SUCH CONFIGURATION")
+            return 350
 
     def get_price(self, charger_configuration):
         """
@@ -831,11 +829,8 @@ class Calculator():
             return 20
         elif charger_configuration == 7:
             return 30
-        elif charger_configuration == 8:
-            return 50
         else:
-            raise Exception("NO SUCH CONFIGURATION")
-
+            return 50
 
 # calc = Calculator(5000, "14/09/2021")
 # print(calc)
