@@ -3,7 +3,7 @@ import unittest
 import datetime
 
 class TestCalculator(unittest.TestCase):
-
+    
     # you may create more test methods
     # you may add parameters to test methods
     # this is an example
@@ -47,18 +47,22 @@ class TestCalculator(unittest.TestCase):
         self.calculator = Calculator(5000, "14/09/2021")
         self.assertEqual(round(self.calculator.time_calculation(29, 37, 42, 3.6), 2), round(56 / 60, 2))
         self.assertEqual(round(self.calculator.time_calculation(7, 83, 56, 36), 2) * 60, 70.8)
-
-    def test_holiday(self):
+    
+    def test_is_holiday_v2(self):
         self.calculator = Calculator(5000, "14/09/2021")
-        # test public holiday
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021,12,25)), True)
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2008,12,1)), True)
-        # no holiday / weekdays
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021,9,14)), True)
-        # test weekends
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021,9,12)), False)
-        # test school holidays ?
+        
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 9, 19)), False)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 5, 17)), False)
 
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 17)), True)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 21)), True)
+
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 4, 25)), True)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 12, 25)), True)
+
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 10, 4)), True)
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 1, 26)), True)
+    
     def test_peak(self):
         self.calculator = Calculator(5000, "14/09/2021")
         self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008,12,1,14,4)), True)
@@ -180,6 +184,6 @@ class TestCalculator(unittest.TestCase):
     #
     #     # multiple days start time between sunrise and sunset , end time between sunset and sunrise ERR
     #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0), 47.227, 2)
-
+    
     if __name__ == "__main__":
         pass
