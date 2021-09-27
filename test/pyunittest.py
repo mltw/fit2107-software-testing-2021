@@ -116,7 +116,7 @@ class TestCalculator(unittest.TestCase):
     def test_get_power(self):
         self.calculator = Calculator(5000, "14/09/2021")
 
-        # test case for each possible charger configuration
+        # test case for power output of each possible charger configuration
         self.assertEqual(self.calculator.get_power(1), 2.0)
         self.assertEqual(self.calculator.get_power(2), 3.6)
         self.assertEqual(self.calculator.get_power(3), 7.2)
@@ -126,8 +126,10 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_power(7), 90)
         self.assertEqual(self.calculator.get_power(8), 350)
 
-    def test_price(self):
+    def test_get_price(self):
         self.calculator = Calculator(5000, "14/09/2021")
+
+        # test case for price of each possible charger configuration
         self.assertEqual(self.calculator.get_price(1), 5)
         self.assertEqual(self.calculator.get_price(2), 7.5)
         self.assertEqual(self.calculator.get_price(3), 10)
