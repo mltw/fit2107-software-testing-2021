@@ -228,8 +228,13 @@ class Calculator():
         return start_date in aus_holidays or start_date.weekday() <= 4
 
     def is_peak_v2(self,start_time):
-        non_peak_time_1 = datetime(start_time.year,start_time.month,start_time.day,6,0,0)
-        non_peak_time_2 = datetime(start_time.year,start_time.month,start_time.day,18,0,0)
+        """
+        Function that determines if given time falls within designated peak hours or not
+        :param start_time: datetime object representing the starting time for charging
+        :return: True if start_time falls within peak time hours, False otherwise
+        """
+        non_peak_time_1 = datetime(start_time.year, start_time.month, start_time.day, 6, 0, 0)  # 6:00 A.M. / 0600 hrs
+        non_peak_time_2 = datetime(start_time.year, start_time.month, start_time.day, 18, 0, 0) # 6:00 P.M. / 1800 hrs
         return non_peak_time_1 <= start_time <= non_peak_time_2
 
     # def get_duration(self, start_time, initial_state, final_state, capacity, power):
