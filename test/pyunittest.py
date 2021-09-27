@@ -51,17 +51,21 @@ class TestCalculator(unittest.TestCase):
     def test_is_holiday_v2(self):
         self.calculator = Calculator(5000, "14/09/2021")
         
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 9, 19)), False)
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 5, 17)), False)
+        # test for non-holidays that are on weekends
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 9, 19)), False)  # non-holiday on a Saturday
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 5, 17)), False)  # non-holiday on a Sunday
 
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 17)), True)
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 21)), True)
+        # test for non-holidays that are on weekdays
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 17)), True)   # non-holiday on a Monday
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 21)), True)   # non-holoday on a Friday
 
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 4, 25)), True)
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 12, 25)), True)
+        # test for holidays that are on weekends
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 4, 25)), True)   # Anzac Day on a Sunday 
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 12, 25)), True)  # Christmas Day on a Saturday
 
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 10, 4)), True)
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 1, 26)), True)
+        # test for holidays that are on weekdays
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 10, 4)), True)   # Labour Day on a Monday
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 1, 26)), True)   # Australia Day on a Tuesday
     
     def test_peak(self):
         self.calculator = Calculator(5000, "14/09/2021")
