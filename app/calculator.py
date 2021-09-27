@@ -210,8 +210,8 @@ class Calculator():
 
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
     def is_holiday_v2(self, start_date):
-        aus_holidays = holidays.Australia()
-        return start_date in aus_holidays or start_date.weekday() <= 4
+        aus_holidays = holidays.Australia()     # generate a set of dates which represent holidays in Australia
+        return start_date in aus_holidays or start_date.weekday() <= 4  # True if start_date is an Australian holiday or weekday
 
     def is_peak_v2(self,start_time):
         non_peak_time_1 = datetime(start_time.year,start_time.month,start_time.day,6,0,0)
