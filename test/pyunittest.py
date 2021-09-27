@@ -43,10 +43,18 @@ class TestCalculator(unittest.TestCase):
                                                               initial_state=0, final_state=37.5,
                                                               capacity=4, power=2.0))
 
-    def test_time(self):
+    def test_time_calculation(self):
         self.calculator = Calculator(5000, "14/09/2021")
-        self.assertEqual(round(self.calculator.time_calculation(29, 37, 42, 3.6), 2), round(56 / 60, 2))
-        self.assertEqual(round(self.calculator.time_calculation(7, 83, 56, 36), 2) * 60, 70.8)
+
+        # randomly generated test cases with one per available charger configuration
+        self.assertEqual(self.calculator.time_calculation(23, 92, 73, 2.0), 25.18)    # configuration 1
+        self.assertEqual(self.calculator.time_calculation(29, 37, 42, 3.6), 0.93)     # configuration 2
+        self.assertEqual(self.calculator.time_calculation(14, 52, 50, 7.2), 2.64)     # configuration 3
+        self.assertEqual(self.calculator.time_calculation(2, 10, 80, 11), 0.58)       # configuration 4
+        self.assertEqual(self.calculator.time_calculation(50, 80, 100, 22), 1.36)     # configuration 5
+        self.assertEqual(self.calculator.time_calculation(7, 83, 56, 36), 1.18)       # configuration 6
+        self.assertEqual(self.calculator.time_calculation(10, 25, 40, 90), 0.07)      # configuration 7
+        self.assertEqual(self.calculator.time_calculation(5, 95, 150, 350), 0.39)     # configuration 8
     
     def test_is_holiday_v2(self):
         self.calculator = Calculator(5000, "14/09/2021")
