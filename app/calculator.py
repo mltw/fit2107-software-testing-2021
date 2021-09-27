@@ -206,18 +206,37 @@ class Calculator():
 
     # you may add more parameters if needed, you may also modify the formula.
     def time_calculation(self, initial_state, final_state, capacity, power):
+        """
+        Function that calculates the duration to charge the vehicle from initial_state to final_state given its battery capacity
+        and power supplied by the charger
+        :param initial_state : float between 0 and 100 at most equal to final_state 
+        :param final_state   : float between 0 and 100 at least equal to initial_state
+        :param capacity      : float between 0.65 and 100
+        :param power         : float value according to available charger configurations
+        :return              : float representation of charging time required correct to two decimal places in hours
+        """
         time = (float(final_state) - float(initial_state)) / 100 * float(capacity) / power
-        return round(time,2)
+        return round(time, 2)
 
 
     # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
     def is_holiday_v2(self, start_date):
-        aus_holidays = holidays.Australia()
+        """
+        Function that determines if a given date is deemed to be a surchargable date in Australia or not
+        :param start_date   : datetime object representing the starting date for charging
+        :return             : True if start_date is an Australian holiday or weekday, False otherwise
+        """
+        aus_holidays = holidays.Australia()     # generate a set of dates which represent holidays in Australia
         return start_date in aus_holidays or start_date.weekday() <= 4
 
-    def is_peak_v2(self,start_time):
-        non_peak_time_1 = datetime(start_time.year,start_time.month,start_time.day,6,0,0)
-        non_peak_time_2 = datetime(start_time.year,start_time.month,start_time.day,18,0,0)
+    def is_peak_v2(self, start_time):
+        """
+        Function that determines if given time falls within designated peak hours or not
+        :param start_time   : datetime object representing the starting time for charging
+        :return             : True if start_time falls within peak time hours, False otherwise
+        """
+        non_peak_time_1 = datetime(start_time.year, start_time.month, start_time.day, 6, 0, 0)  # 6:00 A.M. / 0600 hrs
+        non_peak_time_2 = datetime(start_time.year, start_time.month, start_time.day, 18, 0, 0) # 6:00 P.M. / 1800 hrs
         return non_peak_time_1 <= start_time <= non_peak_time_2
 
     # def get_duration(self, start_time, initial_state, final_state, capacity, power):
@@ -770,7 +789,12 @@ class Calculator():
         return total_res
 
     # Additional new function
-    def get_power(self,charger_configuration):
+    def get_power(self, charger_configuration):
+        """
+        Function that outputs the correct power value for the given charger configuration
+        :param charger_configuration    : integer representation of a charger configuration
+        :return                         : power output for the given charger configuration
+        """
         charger_configuration = int(charger_configuration)
         if charger_configuration == 1:
             return 2.0
@@ -786,12 +810,15 @@ class Calculator():
             return 36
         elif charger_configuration == 7:
             return 90
-        elif charger_configuration == 8:
+        else:
             return 350
-        else :
-            raise Exception("NO SUCH CONFIGURATION")
 
-    def get_price(self,charger_configuration):
+    def get_price(self, charger_configuration):
+        """
+        Function that outputs the correct price value for the given charger configuration
+        :param charger_configuration    : integer representation of a charger configuration
+        :return                         : price for the given charger configuration
+        """
         charger_configuration = int(charger_configuration)
         if charger_configuration == 1:
             return 5.0
@@ -807,11 +834,8 @@ class Calculator():
             return 20
         elif charger_configuration == 7:
             return 30
-        elif charger_configuration == 8:
+        else:
             return 50
-        else :
-            raise Exception("NO SUCH CONFIGURATION")
-
 
 # calc = Calculator(5000, "14/09/2021")
 # print(calc)
