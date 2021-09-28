@@ -26,7 +26,6 @@ class TestCalculatorForm(unittest.TestCase):
             self.calculator_form.FinalCharge.data = "80"
             self.calculator_form.InitialCharge.data = "20"
 
-    # probs use condition + branch coverage, because its just simple operations
     def test_validate_battery_pack_capacity(self):
         # pass in a non-numeric character
         self.assertRaises(ValueError,
