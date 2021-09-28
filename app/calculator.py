@@ -164,8 +164,8 @@ class Calculator():
                 surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
                 extra_power = power_list[i][0][2]
                 total_power = max((((float(final_state) - float(initial_state)) / 100) * float(capacity)) - extra_power,0)
-                total_cost = total_power * price / 100 * surcharge
-                return total_cost
+                total_cost += total_power * price / 100 * surcharge
+                # return total_cost
             else :
                 price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
                 surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
@@ -202,7 +202,8 @@ class Calculator():
                     extra_power= power_list[i][current_power][2]
                     total_power = max(((partial_final_state-partial_initial_state)/100)* float(capacity) - extra_power,0)
                     total_cost += total_power* price / 100 * surcharge
-                return round(total_cost/len(power_list),2)
+
+        return round(total_cost/len(power_list), 2)
 
     # you may add more parameters if needed, you may also modify the formula.
     def time_calculation(self, initial_state, final_state, capacity, power):
