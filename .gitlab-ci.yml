@@ -36,6 +36,7 @@ test:
 #        - python3 -m test.pyunittest
 #        - python3 -m unittest test/pyunittest.py
         - coverage run --source=app --branch -m unittest test/pyunittest.py
+        - coverage run -a --source=app --branch -m unittest test/test_calculator_form.py
         - coverage report -m
         - coverage html -d coverage_reports
     artifacts:
