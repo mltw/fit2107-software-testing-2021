@@ -1,49 +1,60 @@
+from unittest import mock
+
 from app.calculator import *
 import unittest
 import datetime
+from unittest.mock import Mock, patch
 
 class TestCalculator(unittest.TestCase):
-    
+
     # you may create more test methods
     # you may add parameters to test methods
     # this is an example
-    def test_cost_v2(self):
+    # def test_cost_v2(self):
+    #     self.calculator = Calculator(5000, "14/09/2021")
+    #     # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
+    #     # start time before peak, end time before peak, single day
+    #     print("start")
+    #     print("1")
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
+    #     print("2")
+    #     # start time before peak, end time before off peak, single day, multiple hour
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","05:30"),2.43)
+    #     print("3")
+    #     # start time after 6, end time before 18, single day, within single hour
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","06:10"),22)
+    #     print("4")
+    #     # starttime after 6, endtime before 18, single day, multiple hours
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","06:10"),2.38)
+    #     print("5")
+    #     # starttime after 6, endtime after 18, single day, single hour
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","17:55"),19.16)
+    #     print("6")
+    #     # starttime after 18, endtime before 18, single day, multiple hours
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+    #     print("7")
+    #     # starttime after 18, endtime after 18, single day, single hour
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","19:00"),11)
+    #     print("8")
+    #     # starttime after 18, endtime after 18, single day, single hour
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+    #     # starttime after 18, endtime next day , multiple hour
+    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+
+    @mock.patch.object(Calculator, 'calculate_solar_energy_new_w_cc', return_value=[])
+    @patch('project.app.calculator.requests.get')
+    def test_cost_v3(self,mock_2 ,mock_calculate_solar_energy_new_w_cc):
         self.calculator = Calculator(5000, "14/09/2021")
-        self.calculator = Calculator(5000, "14/9/2021")
-        # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
-        # start time before peak, end time before peak, single day
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
-        # start time before peak, end time before off peak, single day, multiple hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","05:30"),2.43)
-        # start time after 6, end time before 18, single day, within single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","06:10"),22)
-        # starttime after 6, endtime before 18, single day, multiple hours
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","06:10"),2.38)
-        # starttime after 6, endtime after 18, single day, single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","17:55"),19.16)
-        # starttime after 18, endtime before 18, single day, multiple hours
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
-        # starttime after 18, endtime after 18, single day, single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","19:00"),11)
-        # starttime after 18, endtime after 18, single day, single hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/09/2021","23:55"),10.24)
-        # starttime after 18, endtime next day , multiple hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]]
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
 
-    def test_cost_v3(self):
-        self.calculator = Calculator(5000, "14/09/2021")
-        # self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
-        # print(self.calculator.cost_calculation_v3())
-        print(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "14/09/2021", "14:00"))
-        print(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "14/09/2021", "14:00"))
-
-    def test_calculate_solar_energy_new_w_cc(self):
-        self.calculator = Calculator(7250, "22/02/2022")
-        print(self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
-                                                              initial_state=0, final_state=37.5,
-                                                              capacity=4, power=2.0))
-
-    def test_time_calculation(self):
+    # def test_calculate_solar_energy_new_w_cc(self):
+    #     self.calculator = Calculator(7250, "22/02/2022")
+    #     self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
+    #                                                           initial_state=0, final_state=37.5,
+    #                                                           capacity=4, power=2.0)
+    @patch('project.app.calculator.requests.get')
+    def test_time_calculation(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
 
         # randomly generated test cases with one per available charger configuration
@@ -55,10 +66,11 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.time_calculation(7, 83, 56, 36), 1.18)       # configuration 6
         self.assertEqual(self.calculator.time_calculation(10, 25, 40, 90), 0.07)      # configuration 7
         self.assertEqual(self.calculator.time_calculation(5, 95, 150, 350), 0.39)     # configuration 8
-    
-    def test_is_holiday_v2(self):
+
+    @patch('project.app.calculator.requests.get')
+    def test_is_holiday_v2(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
-        
+
         # test for non-holidays that are on weekends
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 9, 19)), False)  # non-holiday on a Saturday
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 5, 17)), False)  # non-holiday on a Sunday
@@ -68,14 +80,15 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2020, 8, 21)), True)   # non-holoday on a Friday
 
         # test for holidays that are on weekends
-        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 4, 25)), True)   # Anzac Day on a Sunday 
+        self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 4, 25)), True)   # Anzac Day on a Sunday
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 12, 25)), True)  # Christmas Day on a Saturday
 
         # test for holidays that are on weekdays
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 10, 4)), True)   # Labour Day on a Monday
         self.assertEqual(self.calculator.is_holiday_v2(datetime.datetime(2021, 1, 26)), True)   # Australia Day on a Tuesday
-    
-    def test_is_peak_v2(self):
+
+    @patch('project.app.calculator.requests.get')
+    def test_is_peak_v2(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
 
         # 2 tests for times within peak hours
@@ -90,32 +103,9 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 6, 0)), True)
         self.assertEqual(self.calculator.is_peak_v2(datetime.datetime(2008, 12, 1, 18, 0)), True)
 
-    # def test_get_duration(self):
-    #     self.calculator = Calculator(5000,"14/09/2021")
-    #     self.calculator.get_duration("18:01")
-
-    def test_get_sun_hour(self):
-        self.calculator = Calculator(5000, "10/09/2021")
-        self.assertEqual(self.calculator.get_sun_hour("02/02/2021"), 7.6)
-        self.assertEqual(self.calculator.get_sun_hour("22/02/2020"), 7.2)
-
-        self.calculator = Calculator(6001, "25/12/2020")
-        self.assertEqual(self.calculator.get_sun_hour("25/12/2020"), 8.6)
-
-    def test_get_solar_energy_duration(self):
-        self.calculator = Calculator(5000, "10/09/2021")
-        self.calculator.get_solar_energy_duration("18:01")
-
-    # def test_get_cloud_cover(self):
-    #     self.calculator = Calculator(5000,"14/09/2021")
-    #     self.calculator.get_cloud_cover()
-
-    # def test_get_cloud_cover(self):
-    #     self.calculator = Calculator(5000,"14/09/2021")
-    #     self.calculator.calculate_solar_energy()
-    def test_get_power(self):
+    @patch('project.app.calculator.requests.get')
+    def test_get_power(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
-
         # test case for power output of each possible charger configuration
         self.assertEqual(self.calculator.get_power(1), 2.0)
         self.assertEqual(self.calculator.get_power(2), 3.6)
@@ -126,7 +116,8 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_power(7), 90)
         self.assertEqual(self.calculator.get_power(8), 350)
 
-    def test_get_price(self):
+    @patch('project.app.calculator.requests.get')
+    def test_get_price(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
 
         # test case for price of each possible charger configuration
@@ -139,74 +130,52 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_price(7), 30)
         self.assertEqual(self.calculator.get_price(8), 50)
 
-    def test_get_cloud_cover(self):
-        self.calculator = Calculator(5000, "22/02/2020")
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "17:30", "17:59"), 1)
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "18:00", "18:26"), 0)
-        self.assertEqual(self.calculator.get_cloud_cover("22/02/2020", "00:00", "00:59"), 0)
-        self.assertRaises(ValueError,
-                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "23:05"))
-        self.assertRaises(ValueError,
-                          lambda: self.calculator.get_cloud_cover("24/02/2020", "23:15", "21:05"))
+    @patch('project.app.calculator.requests.get')
+    def test_get_cloud_cover(self,mock):
+        calculator = Calculator(5000,"22/02/2020")
+        mock.return_value.json.return_value = {'date': '2020-02-22', 'sunrise': '05:55:00', 'sunset': '19:03:00', 'moonrise': '04:13:00', 'moonset': '18:32:00', 'moonPhase': 'New Moon', 'moonIlluminationPct': 0, 'minTempC': 14, 'maxTempC': 25, 'avgTempC': 21, 'sunHours': 7.2, 'uvIndex': 6, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 15, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 19, 'windDirectionDeg': 131, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 73, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 1, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 124, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 2, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 117, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 70, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 3, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 110, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 4, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 109, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 67, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 5, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 107, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 67, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 6, 'tempC': 14, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 4, 'windspeedKph': 9, 'windDirectionDeg': 105, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 66, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 8, 'windDirectionDeg': 101, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 58, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 8, 'tempC': 19, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 7, 'windDirectionDeg': 97, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 50, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 9, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 6, 'windDirectionDeg': 93, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 10, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 7, 'windDirectionDeg': 137, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 11, 'tempC': 24, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 8, 'windDirectionDeg': 181, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 12, 'tempC': 25, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 7, 'windspeedKph': 9, 'windDirectionDeg': 225, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 13, 'tempC': 25, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 11, 'windDirectionDeg': 219, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 14, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 12, 'windDirectionDeg': 212, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 15, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 2, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 206, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 16, 'tempC': 23, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 15, 'windDirectionDeg': 185, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 17, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 164, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 45, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 18, 'tempC': 21, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 17, 'windDirectionDeg': 143, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 47, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 19, 'tempC': 20, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 136, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 20, 'tempC': 18, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 130, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 57, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 21, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 123, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 61, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 22, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 118, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 63, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 23, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 112, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 64, 'visibilityKm': 10, 'pressureMb': 1019}]}
+        self.assertEqual(calculator.get_cloud_cover("22/02/2020", "17:30", "17:59"),1)
+        self.assertEqual(calculator.get_cloud_cover("22/02/2020", "18:00", "18:26"),0)
+        self.assertEqual(calculator.get_cloud_cover("22/02/2020", "00:00", "00:59"),0)
+        self.assertRaises(ValueError,lambda: calculator.get_cloud_cover("22/02/2020", "23:15", "23:05"))
+        self.assertRaises(ValueError,lambda: calculator.get_cloud_cover("22/02/2020", "23:15", "21:05"))
 
-    def test_get_day_light_length(self):
+    @patch('project.app.calculator.requests.get')
+    def test_get_sun_hour(self,mock):
+        self.calculator = Calculator(5000, "10/09/2021")
+        mock.return_value.json.return_value = {'date': '2021-02-02', 'sunrise': '05:36:00', 'sunset': '19:22:00', 'moonrise': '22:22:00', 'moonset': '09:57:00', 'moonPhase': 'Waning Gibbous', 'moonIlluminationPct': 55, 'minTempC': 14, 'maxTempC': 22, 'avgTempC': 19, 'sunHours': 7.6, 'uvIndex': 5, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 14, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 46, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 160, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 84, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 1, 'tempC': 14, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 48, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 159, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 82, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 2, 'tempC': 14, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 51, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 158, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 80, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 3, 'tempC': 15, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 54, 'uvIndex': 1, 'windspeedKph': 17, 'windDirectionDeg': 157, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 79, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 4, 'tempC': 15, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 58, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 156, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 78, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 5, 'tempC': 15, 'weatherDesc': 'Cloudy', 'cloudCoverPct': 63, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 155, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 77, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 6, 'tempC': 15, 'weatherDesc': 'Cloudy', 'cloudCoverPct': 67, 'uvIndex': 4, 'windspeedKph': 15, 'windDirectionDeg': 154, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 76, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Cloudy', 'cloudCoverPct': 55, 'uvIndex': 4, 'windspeedKph': 15, 'windDirectionDeg': 154, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 8, 'tempC': 17, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 44, 'uvIndex': 5, 'windspeedKph': 14, 'windDirectionDeg': 155, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 65, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 9, 'tempC': 18, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 32, 'uvIndex': 5, 'windspeedKph': 14, 'windDirectionDeg': 155, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 60, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 10, 'tempC': 19, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 21, 'uvIndex': 5, 'windspeedKph': 15, 'windDirectionDeg': 160, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 54, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 11, 'tempC': 20, 'weatherDesc': 'Sunny', 'cloudCoverPct': 11, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 165, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 48, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 12, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 18, 'windDirectionDeg': 171, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 43, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 13, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 19, 'windDirectionDeg': 170, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 41, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 14, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 20, 'windDirectionDeg': 170, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 15, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 21, 'windDirectionDeg': 170, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 16, 'tempC': 20, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 21, 'windDirectionDeg': 166, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 45, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 17, 'tempC': 19, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 21, 'windDirectionDeg': 161, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 18, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 22, 'windDirectionDeg': 157, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 59, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 19, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 21, 'windDirectionDeg': 152, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 65, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 20, 'tempC': 15, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 21, 'windDirectionDeg': 147, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 21, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 20, 'windDirectionDeg': 142, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 77, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 22, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 19, 'windDirectionDeg': 137, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 78, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 23, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 133, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 80, 'visibilityKm': 10, 'pressureMb': 1017}]}
+        self.assertEqual(self.calculator.get_sun_hour("02/02/2021"), 7.6)
+
+        mock.return_value.json.return_value = {'date': '2020-02-22', 'sunrise': '05:55:00', 'sunset': '19:03:00', 'moonrise': '04:13:00', 'moonset': '18:32:00', 'moonPhase': 'New Moon', 'moonIlluminationPct': 0, 'minTempC': 14, 'maxTempC': 25, 'avgTempC': 21, 'sunHours': 7.2, 'uvIndex': 6, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 15, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 19, 'windDirectionDeg': 131, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 73, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 1, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 124, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 2, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 117, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 70, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 3, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 110, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 4, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 109, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 67, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 5, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 107, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 67, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 6, 'tempC': 14, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 4, 'windspeedKph': 9, 'windDirectionDeg': 105, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 66, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 8, 'windDirectionDeg': 101, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 58, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 8, 'tempC': 19, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 7, 'windDirectionDeg': 97, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 50, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 9, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 6, 'windDirectionDeg': 93, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 10, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 7, 'windDirectionDeg': 137, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 11, 'tempC': 24, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 8, 'windDirectionDeg': 181, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 12, 'tempC': 25, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 7, 'windspeedKph': 9, 'windDirectionDeg': 225, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 13, 'tempC': 25, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 11, 'windDirectionDeg': 219, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 14, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 12, 'windDirectionDeg': 212, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 15, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 2, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 206, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 16, 'tempC': 23, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 15, 'windDirectionDeg': 185, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 17, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 164, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 45, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 18, 'tempC': 21, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 17, 'windDirectionDeg': 143, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 47, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 19, 'tempC': 20, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 136, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 20, 'tempC': 18, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 130, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 57, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 21, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 123, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 61, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 22, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 118, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 63, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 23, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 112, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 64, 'visibilityKm': 10, 'pressureMb': 1019}]}
+        self.assertEqual(self.calculator.get_sun_hour("22/02/2020"), 7.2)
+
+    @patch('project.app.calculator.requests.get')
+    def test_get_day_light_length(self,mock):
+        # mock.return_value.json.return_value
         self.calculator = Calculator(5000, "02/02/2021")
+        mock.return_value.json.return_value ={'date': '2021-02-02', 'sunrise': '05:36:00', 'sunset': '19:22:00', 'moonrise': '22:22:00', 'moonset': '09:57:00', 'moonPhase': 'Waning Gibbous', 'moonIlluminationPct': 55, 'minTempC': 14, 'maxTempC': 22, 'avgTempC': 19, 'sunHours': 7.6, 'uvIndex': 5, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 14, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 46, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 160, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 84, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 1, 'tempC': 14, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 48, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 159, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 82, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 2, 'tempC': 14, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 51, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 158, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 80, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 3, 'tempC': 15, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 54, 'uvIndex': 1, 'windspeedKph': 17, 'windDirectionDeg': 157, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 79, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 4, 'tempC': 15, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 58, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 156, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 78, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 5, 'tempC': 15, 'weatherDesc': 'Cloudy', 'cloudCoverPct': 63, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 155, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 77, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 6, 'tempC': 15, 'weatherDesc': 'Cloudy', 'cloudCoverPct': 67, 'uvIndex': 4, 'windspeedKph': 15, 'windDirectionDeg': 154, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 76, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Cloudy', 'cloudCoverPct': 55, 'uvIndex': 4, 'windspeedKph': 15, 'windDirectionDeg': 154, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 8, 'tempC': 17, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 44, 'uvIndex': 5, 'windspeedKph': 14, 'windDirectionDeg': 155, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 65, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 9, 'tempC': 18, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 32, 'uvIndex': 5, 'windspeedKph': 14, 'windDirectionDeg': 155, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 60, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 10, 'tempC': 19, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 21, 'uvIndex': 5, 'windspeedKph': 15, 'windDirectionDeg': 160, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 54, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 11, 'tempC': 20, 'weatherDesc': 'Sunny', 'cloudCoverPct': 11, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 165, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 48, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 12, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 18, 'windDirectionDeg': 171, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 43, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 13, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 19, 'windDirectionDeg': 170, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 41, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 14, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 20, 'windDirectionDeg': 170, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 15, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 21, 'windDirectionDeg': 170, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 16, 'tempC': 20, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 21, 'windDirectionDeg': 166, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 45, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 17, 'tempC': 19, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 21, 'windDirectionDeg': 161, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 18, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 22, 'windDirectionDeg': 157, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 59, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 19, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 21, 'windDirectionDeg': 152, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 65, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 20, 'tempC': 15, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 21, 'windDirectionDeg': 147, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 21, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 20, 'windDirectionDeg': 142, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 77, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 22, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 19, 'windDirectionDeg': 137, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 78, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 23, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 133, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 80, 'visibilityKm': 10, 'pressureMb': 1017}]}
         self.assertAlmostEqual(self.calculator.get_day_light_length("02/02/2021"), 13.77, 2)
 
-        self.calculator = Calculator(5000, "22/02/2020")
+        mock.return_value.json.return_value ={'date': '2020-02-22', 'sunrise': '05:55:00', 'sunset': '19:03:00', 'moonrise': '04:13:00', 'moonset': '18:32:00', 'moonPhase': 'New Moon', 'moonIlluminationPct': 0, 'minTempC': 14, 'maxTempC': 25, 'avgTempC': 21, 'sunHours': 7.2, 'uvIndex': 6, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 15, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 19, 'windDirectionDeg': 131, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 73, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 1, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 18, 'windDirectionDeg': 124, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 2, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 117, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 70, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 3, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 110, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 4, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 109, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 67, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 5, 'tempC': 14, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 107, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 67, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 6, 'tempC': 14, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 4, 'windspeedKph': 9, 'windDirectionDeg': 105, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 66, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 8, 'windDirectionDeg': 101, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 58, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 8, 'tempC': 19, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 7, 'windDirectionDeg': 97, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 50, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 9, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 6, 'windDirectionDeg': 93, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 10, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 7, 'windDirectionDeg': 137, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1022}, {'hour': 11, 'tempC': 24, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 6, 'windspeedKph': 8, 'windDirectionDeg': 181, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 12, 'tempC': 25, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 7, 'windspeedKph': 9, 'windDirectionDeg': 225, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1021}, {'hour': 13, 'tempC': 25, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 11, 'windDirectionDeg': 219, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 14, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 12, 'windDirectionDeg': 212, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 15, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 2, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 206, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 16, 'tempC': 23, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 15, 'windDirectionDeg': 185, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 17, 'tempC': 22, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 164, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 45, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 18, 'tempC': 21, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 17, 'windDirectionDeg': 143, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 47, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 19, 'tempC': 20, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 16, 'windDirectionDeg': 136, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 20, 'tempC': 18, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 130, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 57, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 21, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 123, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 61, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 22, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 118, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 63, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 23, 'tempC': 16, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 112, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 64, 'visibilityKm': 10, 'pressureMb': 1019}]}
         self.assertAlmostEqual(self.calculator.get_day_light_length("22/02/2020"), 13.13, 2)
 
-        self.calculator = Calculator(6001, "25/12/2020")
-        self.assertAlmostEqual(self.calculator.get_day_light_length("25/12/2020"), 14.23, 2)
+        mock.return_value.json.return_value ={'date': '2020-12-25', 'sunrise': '05:01:00', 'sunset': '19:31:00', 'moonrise': '15:03:00', 'moonset': '01:43:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 70, 'minTempC': 12, 'maxTempC': 25, 'avgTempC': 21, 'sunHours': 8.9, 'uvIndex': 6, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 2, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 117, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 77, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 1, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 19, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 113, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 75, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 2, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 36, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 108, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 74, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 3, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 53, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 104, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 73, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 4, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 39, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 102, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 5, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 26, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 100, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 69, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 6, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 13, 'uvIndex': 4, 'windspeedKph': 10, 'windDirectionDeg': 98, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 14, 'uvIndex': 5, 'windspeedKph': 8, 'windDirectionDeg': 96, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 59, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 8, 'tempC': 18, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 15, 'uvIndex': 5, 'windspeedKph': 6, 'windDirectionDeg': 95, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 50, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 9, 'tempC': 21, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 16, 'uvIndex': 6, 'windspeedKph': 4, 'windDirectionDeg': 94, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 41, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 10, 'tempC': 22, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 20, 'uvIndex': 6, 'windspeedKph': 6, 'windDirectionDeg': 146, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 11, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 25, 'uvIndex': 6, 'windspeedKph': 8, 'windDirectionDeg': 199, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 12, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 30, 'uvIndex': 6, 'windspeedKph': 10, 'windDirectionDeg': 252, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 13, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 27, 'uvIndex': 6, 'windspeedKph': 12, 'windDirectionDeg': 241, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 14, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 24, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 230, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 15, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 20, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 219, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 16, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 14, 'uvIndex': 6, 'windspeedKph': 15, 'windDirectionDeg': 206, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 17, 'tempC': 23, 'weatherDesc': 'Sunny', 'cloudCoverPct': 7, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 193, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 43, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 18, 'tempC': 22, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 180, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 46, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 19, 'tempC': 20, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 162, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 20, 'tempC': 19, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 143, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 57, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 21, 'tempC': 18, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 125, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 63, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 22, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 2, 'uvIndex': 1, 'windspeedKph': 10, 'windDirectionDeg': 119, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 62, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 23, 'tempC': 17, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 4, 'uvIndex': 1, 'windspeedKph': 8, 'windDirectionDeg': 113, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 61, 'visibilityKm': 10, 'pressureMb': 1016}]}
+        self.assertAlmostEqual(self.calculator.get_day_light_length("25/12/2020"), 14.5, 2)
 
-    def test_calculate_solar_energy_within_a_day(self):
-        self.calculator = Calculator(6001, "25/12/2020")
-        # self.assertAlmostEqual(self.calculator.calculate_solar_energy_within_a_day("25/12/2020", "08:00", "09:00"),
-        #                        6.04, 1)
 
-        # print(self.calculator.get_duration("1030", "1100"))
-        print(self.calculator.calculate_solar_energy_within_a_day_by_hour("25/12/2020", "23:45", "00:30"))
-
-        print(self.calculator.calculate_solar_energy_new(start_date="01/08/2021", start_time="11:00",
-                                                         initial_state=0, final_state=100,
-                                                         capacity=90, power=2.0))
-        print(self.calculator.calculate_solar_energy_new(start_date="01/08/2021", start_time="07:30",
-                                                         initial_state=90, final_state=100,
-                                                         capacity=90, power=2.0))
-
-    # "", "", , , ,
-    # "01/08/2021", "07:30", 90, 100, 90, 2.0
-
-    # def test_calculate_solar_energy(self):
+    # def test_calculate_solar_energy_within_a_day(self):
     #     self.calculator = Calculator(6001, "25/12/2020")
-    #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("25/12/2020", "08:00", 20, 80, 82, 350), 0.85, 1)
+    #     # self.assertAlmostEqual(self.calculator.calculate_solar_energy_within_a_day("25/12/2020", "08:00", "09:00"),
+    #     #                        6.04, 1)
     #
-    #     # single day start time before sunrise, end time before sunrise
-    #     self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 90, 100, 90, 90),0.0)
+    #     # print(self.calculator.get_duration("1030", "1100"))
+    #     self.calculator.calculate_solar_energy_within_a_day_by_hour("25/12/2020", "23:45", "00:30")
     #
-    #     # single day start time before sunrise, end time between sunrise and sunset
-    #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 90, 100, 90, 2.0), 8.995, 3)
-    #
-    #     # single day start time before sunrise, end time after sunset
-    #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:00", 0,30 ,90 , 2.0), 28, 1)
-    #
-    #     # single day start time after sunrise and sunset
-    #     self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 90,100 ,90 , 90),0.0)
-    #
-    #     # single day start time after sunrise before sunset end time before sunset
-    #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 90,100 ,90 , 2.0),11.9,1)
-    #
-    #     # single day start time after sunrise before sunset end time after sunset
-    #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "07:30", 0,30 ,90 , 2.0),26.94,2)
-    #
-    #     # multiple days start time after sunset end time before sunrise
-    #     self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "18:00", 0,80 ,90 , 2.0), 27)
-    #
-    #     # multiple days start time before sunrise end time after sunset ERR
-    #     self.assertEqual(self.calculator.calculate_solar_energy("01/08/2021", "06:00", 0,90,90, 2.0), 55)
-    #
-    #     # multiple days start time between sunrise and sunset , end time between sunset and sunrise ERR
-    #     self.assertAlmostEqual(self.calculator.calculate_solar_energy("01/08/2021", "11:00", 0,100 ,90, 2.0), 47.227, 2)
-    
-    if __name__ == "__main__":
-        pass
+    #     self.calculator.calculate_solar_energy_new(start_date="01/08/2021", start_time="11:00",
+    #                                                      initial_state=0, final_state=100,
+    #                                                      capacity=90, power=2.0)
+    #     self.calculator.calculate_solar_energy_new(start_date="01/08/2021", start_time="07:30",
+    #                                                      initial_state=90, final_state=100,
+    #                                                      capacity=90, power=2.0)
+
+
