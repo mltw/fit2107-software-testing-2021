@@ -14,7 +14,6 @@ class Calculator():
         postcode_PARAMS = {'postcode':postcode}
         location_r = requests.get(url=location_link,params=postcode_PARAMS)
         self.location_data = location_r.json()
-
         self.weather_link = "http://118.138.246.158/api/v1/weather"
         self.location_id = -1
         # find the correct location's id
@@ -63,6 +62,72 @@ class Calculator():
         self.weather_PARAMS = {'location': self.location_id, 'date': new_date}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
+
+    def cost_calculation_v1(self, initial_state, final_state, capacity,base_price,power,start_date,start_time):
+        # requirement 2 can't take in future dates, so just return a '-'
+        max_date_allowed = datetime.now() - timedelta(days=2)
+
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+
+        if current_date <= max_date_allowed:
+            pass
+        else:
+            return '-'
+        date = start_date.split('/')
+        time = start_time.split(':')
+        current_datetime = datetime(int(date[2]),int(date[1]),int(date[0]),int(time[0]),int(time[1]))
+
+        base_price =base_price
+        surcharge_factor =  1.1
+        total_time = self.time_calculation(initial_state, final_state, capacity,power)
+        total_cost = 0
+
+        first_hour_datetime = datetime(int(date[2]),int(date[1]),int(date[0]),int(time[0]),0) + timedelta(hours=1)
+        time_difference = first_hour_datetime - current_datetime
+        minute_difference = time_difference.total_seconds()/60
+        hour_difference = minute_difference/60
+        # calculate the cost for the first hour
+        # if the first hour contains all the time
+        if total_time <= hour_difference :
+            price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            total_power = max((((float(final_state) - float(initial_state)) / 100) * float(capacity)),0)
+            total_cost = total_power * price / 100 * surcharge
+            return total_cost
+        else :
+            price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            partial_initial_state = float(initial_state)
+            partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state))/total_time) * hour_difference
+            total_power = max(((partial_final_state-partial_initial_state)/100) * float(capacity),0)
+            total_cost += total_power* price / 100 * surcharge
+            # print("tc 1 :" ,total_cost,partial_initial_state,partial_final_state,total_time)
+            current_datetime = first_hour_datetime
+            temp_total_time = total_time - hour_difference
+            current_power = 1
+            while temp_total_time >= 1 :
+                temp_total_time -= 1
+                current_datetime += timedelta(minutes=30)
+                price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                partial_initial_state = partial_final_state
+                partial_final_state += ((float(final_state) - float(initial_state))/total_time)
+                # use
+                total_power = max(((partial_final_state-partial_initial_state)/100) * float(capacity),0)
+                total_cost += total_power* price / 100 * surcharge
+                current_datetime += timedelta(minutes=30)
+                current_power += 1
+            # print("tc 2 : ",total_cost,partial_initial_state,partial_final_state)
+            if temp_total_time > 0 :
+                total_minute = round(temp_total_time*60,0)
+                current_datetime += timedelta(minutes=total_minute)
+                price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
+                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                partial_initial_state = partial_final_state
+                partial_final_state = float(final_state)
+                total_power = max(((partial_final_state-partial_initial_state)/100)* float(capacity) ,0)
+                total_cost += total_power* price / 100 * surcharge
+            return round(total_cost,2)
 
     # you may add more parameters if needed, you may modify the formula also.
     def cost_calculation_v2(self, initial_state, final_state, capacity,base_price,power,start_date,start_time):
@@ -247,7 +312,6 @@ class Calculator():
         self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
-
         self.sun_hour = self.weather_data['sunHours']
         return self.sun_hour
 
@@ -389,6 +453,7 @@ class Calculator():
 
         return final_du
 
+    # --------------------------------- Requirement 2 -----------------------------------
     def calculate_solar_energy_within_a_day_by_hour(self, start_date, start_time, end_time):
         # get solar hour/insolation (si) and daylight length (dl)
         si = self.get_sun_hour(start_date)
@@ -568,10 +633,7 @@ class Calculator():
                     du = 0
             else:  # = elif start_time > ss
                 du = 0
-
-            # print('si', si)
-            solar_energy = si * du / dl * (1 - cc / 100) * 50 * 0.20
-
+            solar_energy = round(si * du / dl * (1 - cc / 100) * 50 * 0.20, 11)
             arr.append([start_time_temp, end_time_temp, solar_energy])
             start_time_hour += 1
             start_time_minute = 0
