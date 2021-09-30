@@ -49,11 +49,6 @@ def operation_result():
 
         # you may change the logic as your like
         # duration = calculator.get_duration(start_time)
-
-        cost = calculator.cost_calculation_v2(initial_charge, final_charge, battery_capacity,
-                                              calculator.get_price(charger_configuration),
-                                              calculator.get_power(charger_configuration),
-                                              start_date, start_time)
         cost3 = calculator.cost_calculation_v3(initial_charge, final_charge, battery_capacity,
                                                calculator.get_price(charger_configuration),
                                                calculator.get_power(charger_configuration),
