@@ -99,14 +99,10 @@ class TestCalculatorForm(unittest.TestCase):
                          validate_StartDate(self.calculator_form, ObjWithData("2008-07-02")))
 
     def test_validate_charger_configuration(self):
-        # pass in a non-integer number
+        # pass in a non-integer character
         self.assertRaises(ValueError,
                           lambda: main.Calculator_Form.
                           validate_ChargerConfiguration(self.calculator_form, ObjWithData("2.2")))
-        # pass in a non-integer string
-        self.assertRaises(ValueError,
-                          lambda: main.Calculator_Form.
-                          validate_ChargerConfiguration(self.calculator_form, ObjWithData("abc")))
         # pass in a number lesser than 1
         self.assertRaises(ValueError,
                           lambda: main.Calculator_Form.
@@ -121,11 +117,7 @@ class TestCalculatorForm(unittest.TestCase):
                          validate_ChargerConfiguration(self.calculator_form, ObjWithData("1")))
 
     def test_validate_postcode(self):
-        # pass in a non-integer number
-        self.assertRaises(ValueError,
-                          lambda: main.Calculator_Form.
-                          validate_PostCode(self.calculator_form, ObjWithData("5000.0")))
-        # pass in a non-integer string
+        # pass in a non-integer character
         self.assertRaises(ValueError,
                           lambda: main.Calculator_Form.
                           validate_PostCode(self.calculator_form, ObjWithData("abc")))
