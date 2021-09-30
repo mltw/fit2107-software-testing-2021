@@ -1,58 +1,133 @@
 from unittest import mock
 
-from app.calculator import *
+from ..app.calculator import *
 import unittest
 import datetime
 from unittest.mock import Mock, patch
 
 class TestCalculator(unittest.TestCase):
 
-    # you may create more test methods
-    # you may add parameters to test methods
-    # this is an example
-    # def test_cost_v2(self):
-    #     self.calculator = Calculator(5000, "14/09/2021")
-    #     # self.assertEqual(self.calculator.cost_calculation("", "", "", "", ""), "")
-    #     # start time before peak, end time before peak, single day
-    #     print("start")
-    #     print("1")
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
-    #     print("2")
-    #     # start time before peak, end time before off peak, single day, multiple hour
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","05:30"),2.43)
-    #     print("3")
-    #     # start time after 6, end time before 18, single day, within single hour
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","06:10"),22)
-    #     print("4")
-    #     # starttime after 6, endtime before 18, single day, multiple hours
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","06:10"),2.38)
-    #     print("5")
-    #     # starttime after 6, endtime after 18, single day, single hour
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","17:55"),19.16)
-    #     print("6")
-    #     # starttime after 18, endtime before 18, single day, multiple hours
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
-    #     print("7")
-    #     # starttime after 18, endtime after 18, single day, single hour
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","19:00"),11)
-    #     print("8")
-    #     # starttime after 18, endtime after 18, single day, single hour
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/09/2021","23:55"),10.24)
-    #     # starttime after 18, endtime next day , multiple hour
-    #     self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+
+    @patch('project.app.calculator.requests.get')
+    def test_cost_v1(self,mock_2 ):
+        self.calculator = Calculator(5000, "14/09/2021")
+        # start time before peak, end time before peak, single day ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,20,50,350,"14/09/2021","05:30"),5.5)
+
+        # start time before peak, end time before off peak, single day, multiple hour , 2.53 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"14/09/2021","05:30"),4.2)
+
+        # start time after 6, end time before 18, single day, within single hour 22.0 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"14/09/2021","06:10"),22.0)
+
+        # start time after 6, end time before 18, single day, multiple hours,
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"14/09/2021","06:10"),4.4)
+
+        # start time after 18, end time after 18, single day, single hour,19.16
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"14/09/2021","17:55"),19.33)
+
+        # start time after 18, end time before 18, single day, multiple hours,2,2
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+
+        # starttime after 18, endtime after 18, single day, single hour,11
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"14/09/2021","19:00"),11)
+
+        # starttime after 18, endtime after 18, single day, single hour,10.24
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+
+        # starttime after 18, endtime next day , multiple hour
+        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+
+    @mock.patch.object(Calculator, 'calculate_solar_energy_new', return_value=[])
+    @patch('project.app.calculator.requests.get')
+    def test_cost_v2(self,mock_2 ,mock_calculate_solar_energy_new):
+        self.calculator = Calculator(5000, "14/09/2021")
+        mock_calculate_solar_energy_new.return_value = [[530, 533, 0.0]]
+        # start time before peak, end time before peak, single day ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
+
+        mock_calculate_solar_energy_new.return_value = [[530, 600, 0.0], [600, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1103, 0.1675599435825106]]
+        # start time before peak, end time before off peak, single day, multiple hour , 2.53 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","05:30"),2.53)
+
+        mock_calculate_solar_energy_new.return_value = [[610, 616, 0.0]]
+        # start time after 6, end time before 18, single day, within single hour 22.0 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","06:10"),22.0)
+
+        mock_calculate_solar_energy_new.return_value = [[610, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1143, 2.4016925246826517]]
+        # starttime after 6, endtime before 18, single day, multiple hours, 2.38 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","06:10"),2.49)
+
+        mock_calculate_solar_energy_new.return_value =[[1755, 1800, 0.2708039492242595], [1800, 1801, 0.05246826516220028]]
+        # starttime after 6, endtime after 18, single day, single hour,19.16
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","17:55"),19.17)
+
+        # starttime after 18, endtime before 18, single day, multiple hours,2,2
+        mock_calculate_solar_energy_new.return_value = [[1900, 2000, 0.0], [2000, 2100, 0.0], [2100, 2200, 0.0], [2200, 2300, 0.0], [2300, 2359, 0.0], [0, 33, 0.0]]
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+
+        mock_calculate_solar_energy_new.return_value = [[1900, 1906, 0.0]]
+        # starttime after 18, endtime after 18, single day, single hour,11
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","19:00"),11)
+
+        mock_calculate_solar_energy_new.return_value = [[2355, 2359, 0.0], [0, 1, 0.0]]
+        # starttime after 18, endtime after 18, single day, single hour,10.24
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+
+        mock_calculate_solar_energy_new.return_value = [[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]
+        # starttime after 18, endtime next day , multiple hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
 
     @mock.patch.object(Calculator, 'calculate_solar_energy_new_w_cc', return_value=[])
     @patch('project.app.calculator.requests.get')
     def test_cost_v3(self,mock_2 ,mock_calculate_solar_energy_new_w_cc):
         self.calculator = Calculator(5000, "14/09/2021")
-        mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]]
-        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[530, 533, 0.0]]]
+        # start time before peak, end time before peak, single day ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,20,50,350,"14/09/2021","05:30"),5.5)
 
-    # def test_calculate_solar_energy_new_w_cc(self):
-    #     self.calculator = Calculator(7250, "22/02/2022")
-    #     self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
-    #                                                           initial_state=0, final_state=37.5,
-    #                                                           capacity=4, power=2.0)
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[530, 600, 0.0], [600, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1103, 0.1675599435825106]]]
+        # start time before peak, end time before off peak, single day, multiple hour , 2.53 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"14/09/2021","05:30"),2.53)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[610, 616, 0.0]]]
+        # start time after 6, end time before 18, single day, within single hour 22.0 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"14/09/2021","06:10"),22.0)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[610, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1143, 2.4016925246826517]]]
+        # starttime after 6, endtime before 18, single day, multiple hours, 2.38 ---Passed
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"14/09/2021","06:10"),2.49)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[1755, 1800, 0.2708039492242595], [1800, 1801, 0.05246826516220028]]]
+        # starttime after 6, endtime after 18, single day, single hour,19.16
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"14/09/2021","17:55"),19.17)
+
+        # starttime after 18, endtime before 18, single day, multiple hours,2,2
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[1900, 2000, 0.0], [2000, 2100, 0.0], [2100, 2200, 0.0], [2200, 2300, 0.0], [2300, 2359, 0.0], [0, 33, 0.0]]]
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[1900, 1906, 0.0]]]
+        # starttime after 18, endtime after 18, single day, single hour,11
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"14/09/2021","19:00"),11)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 1, 0.0]]]
+        # starttime after 18, endtime after 18, single day, single hour,10.24
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]]
+        # starttime after 18, endtime next day , multiple hour
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+
+        mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]], [[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]], [[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]]
+        # starttime after 18, endtime next day , multiple hour , in the future
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"12/09/2022","23:55"),2.20)
+
+    def test_calculate_solar_energy_new_w_cc(self):
+        self.calculator = Calculator(7250, "22/02/2022")
+        self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
+                                                              initial_state=0, final_state=37.5,
+                                                              capacity=4, power=2.0)
+
     @patch('project.app.calculator.requests.get')
     def test_time_calculation(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
@@ -162,20 +237,58 @@ class TestCalculator(unittest.TestCase):
         mock.return_value.json.return_value ={'date': '2020-12-25', 'sunrise': '05:01:00', 'sunset': '19:31:00', 'moonrise': '15:03:00', 'moonset': '01:43:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 70, 'minTempC': 12, 'maxTempC': 25, 'avgTempC': 21, 'sunHours': 8.9, 'uvIndex': 6, 'location': {'id': 'ff1b3713-6f4e-4f53-8a61-c87e8bdeb075', 'postcode': '5000', 'name': 'ADELAIDE', 'state': 'SA', 'latitude': '-34.9328294', 'longitude': '138.6038129', 'distanceToNearestWeatherStationMetres': 1043.459920267202, 'nearestWeatherStation': {'name': 'ROBERTS STREET (UNLEY)', 'state': 'SA', 'latitude': '-34.9422', 'longitude': '138.6032'}}, 'hourlyWeatherHistory': [{'hour': 0, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 2, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 117, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 77, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 1, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 19, 'uvIndex': 1, 'windspeedKph': 14, 'windDirectionDeg': 113, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 75, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 2, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 36, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 108, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 74, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 3, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 53, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 104, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 73, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 4, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 39, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 102, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 71, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 5, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 26, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 100, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 69, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 6, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 13, 'uvIndex': 4, 'windspeedKph': 10, 'windDirectionDeg': 98, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 7, 'tempC': 16, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 14, 'uvIndex': 5, 'windspeedKph': 8, 'windDirectionDeg': 96, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 59, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 8, 'tempC': 18, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 15, 'uvIndex': 5, 'windspeedKph': 6, 'windDirectionDeg': 95, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 50, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 9, 'tempC': 21, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 16, 'uvIndex': 6, 'windspeedKph': 4, 'windDirectionDeg': 94, 'windDirectionCompass': 'E', 'precipitationMm': 0, 'humidityPct': 41, 'visibilityKm': 10, 'pressureMb': 1020}, {'hour': 10, 'tempC': 22, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 20, 'uvIndex': 6, 'windspeedKph': 6, 'windDirectionDeg': 146, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1019}, {'hour': 11, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 25, 'uvIndex': 6, 'windspeedKph': 8, 'windDirectionDeg': 199, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 12, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 30, 'uvIndex': 6, 'windspeedKph': 10, 'windDirectionDeg': 252, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1018}, {'hour': 13, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 27, 'uvIndex': 6, 'windspeedKph': 12, 'windDirectionDeg': 241, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 36, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 14, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 24, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 230, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 15, 'tempC': 25, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 20, 'uvIndex': 6, 'windspeedKph': 16, 'windDirectionDeg': 219, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 16, 'tempC': 24, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 14, 'uvIndex': 6, 'windspeedKph': 15, 'windDirectionDeg': 206, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 40, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 17, 'tempC': 23, 'weatherDesc': 'Sunny', 'cloudCoverPct': 7, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 193, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 43, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 18, 'tempC': 22, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 180, 'windDirectionCompass': 'S', 'precipitationMm': 0, 'humidityPct': 46, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 19, 'tempC': 20, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 162, 'windDirectionCompass': 'SSE', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 20, 'tempC': 19, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 143, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 57, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 21, 'tempC': 18, 'weatherDesc': 'Clear', 'cloudCoverPct': 0, 'uvIndex': 1, 'windspeedKph': 12, 'windDirectionDeg': 125, 'windDirectionCompass': 'SE', 'precipitationMm': 0, 'humidityPct': 63, 'visibilityKm': 10, 'pressureMb': 1017}, {'hour': 22, 'tempC': 17, 'weatherDesc': 'Clear', 'cloudCoverPct': 2, 'uvIndex': 1, 'windspeedKph': 10, 'windDirectionDeg': 119, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 62, 'visibilityKm': 10, 'pressureMb': 1016}, {'hour': 23, 'tempC': 17, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 4, 'uvIndex': 1, 'windspeedKph': 8, 'windDirectionDeg': 113, 'windDirectionCompass': 'ESE', 'precipitationMm': 0, 'humidityPct': 61, 'visibilityKm': 10, 'pressureMb': 1016}]}
         self.assertAlmostEqual(self.calculator.get_day_light_length("25/12/2020"), 14.5, 2)
 
+    @patch('project.app.calculator.requests.get')
+    def test_calculate_solar_energy_within_a_day_by_hour_w_cc(self,mock_1):
+        self.calculator = Calculator(7250, "22/02/2022")
+        self.calculator.location_id = "22d72902-b72f-4ca0-a522-4dbfb77a7b78"
+        a = {'date': '2021-02-22', 'sunrise': '05:44:00', 'sunset': '19:06:00', 'moonrise': '15:43:00', 'moonset': '00:01:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 73, 'minTempC': 9, 'maxTempC': 21, 'avgTempC': 17, 'sunHours': 5.3, 'uvIndex': 5, 'location': {'id': '22d72902-b72f-4ca0-a522-4dbfb77a7b78', 'postcode': '7250', 'name': 'BLACKSTONE HEIGHTS', 'state': 'TAS', 'latitude': '-41.46', 'longitude': '147.0820001', 'distanceToNearestWeatherStationMetres': 5607.391317385195, 'nearestWeatherStation': {'name': 'LAUNCESTON (TI TREE BEND)', 'state': 'TAS', 'latitude': '-41.4194', 'longitude': '147.1219'}}, 'hourlyWeatherHistory': [
+            {'hour': 0, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 1, 'windspeedKph': 2, 'windDirectionDeg': 232, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 89, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 1, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 3, 'uvIndex': 1, 'windspeedKph': 2, 'windDirectionDeg': 258, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 91, 'visibilityKm': 8, 'pressureMb': 1007},
+            {'hour': 2, 'tempC': 11, 'weatherDesc': 'Clear', 'cloudCoverPct': 6, 'uvIndex': 1, 'windspeedKph': 3, 'windDirectionDeg': 284, 'windDirectionCompass': 'WNW', 'precipitationMm': 0, 'humidityPct': 93, 'visibilityKm': 6, 'pressureMb': 1006},
+            {'hour': 3, 'tempC': 9, 'weatherDesc': 'Clear', 'cloudCoverPct': 9, 'uvIndex': 1, 'windspeedKph': 3, 'windDirectionDeg': 310, 'windDirectionCompass': 'NW', 'precipitationMm': 0, 'humidityPct': 95, 'visibilityKm': 5, 'pressureMb': 1006},
+            {'hour': 4, 'tempC': 10, 'weatherDesc': 'Clear', 'cloudCoverPct': 7, 'uvIndex': 1, 'windspeedKph': 4, 'windDirectionDeg': 314, 'windDirectionCompass': 'NW', 'precipitationMm': 0, 'humidityPct': 93, 'visibilityKm': 6, 'pressureMb': 1006},
+            {'hour': 5, 'tempC': 10, 'weatherDesc': 'Mist', 'cloudCoverPct': 6, 'uvIndex': 1, 'windspeedKph': 4, 'windDirectionDeg': 319, 'windDirectionCompass': 'NW', 'precipitationMm': 0, 'humidityPct': 90, 'visibilityKm': 6, 'pressureMb': 1006},
+            {'hour': 6, 'tempC': 10, 'weatherDesc': 'Mist', 'cloudCoverPct': 4, 'uvIndex': 3, 'windspeedKph': 4, 'windDirectionDeg': 324, 'windDirectionCompass': 'NW', 'precipitationMm': 0, 'humidityPct': 88, 'visibilityKm': 7, 'pressureMb': 1007},
+            {'hour': 7, 'tempC': 12, 'weatherDesc': 'Mist', 'cloudCoverPct': 3, 'uvIndex': 3, 'windspeedKph': 6, 'windDirectionDeg': 313, 'windDirectionCompass': 'NW', 'precipitationMm': 0, 'humidityPct': 78, 'visibilityKm': 8, 'pressureMb': 1007},
+            {'hour': 8, 'tempC': 14, 'weatherDesc': 'Sunny', 'cloudCoverPct': 1, 'uvIndex': 4, 'windspeedKph': 7, 'windDirectionDeg': 303, 'windDirectionCompass': 'WNW', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 9, 'pressureMb': 1007},
+            {'hour': 9, 'tempC': 16, 'weatherDesc': 'Sunny', 'cloudCoverPct': 0, 'uvIndex': 5, 'windspeedKph': 8, 'windDirectionDeg': 292, 'windDirectionCompass': 'WNW', 'precipitationMm': 0, 'humidityPct': 58, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 10, 'tempC': 18, 'weatherDesc': 'Sunny', 'cloudCoverPct': 6, 'uvIndex': 5, 'windspeedKph': 10, 'windDirectionDeg': 286, 'windDirectionCompass': 'WNW', 'precipitationMm': 0, 'humidityPct': 52, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 11, 'tempC': 19, 'weatherDesc': 'Sunny', 'cloudCoverPct': 12, 'uvIndex': 5, 'windspeedKph': 11, 'windDirectionDeg': 281, 'windDirectionCompass': 'W', 'precipitationMm': 0, 'humidityPct': 45, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 12, 'tempC': 21, 'weatherDesc': 'Sunny', 'cloudCoverPct': 17, 'uvIndex': 6, 'windspeedKph': 13, 'windDirectionDeg': 275, 'windDirectionCompass': 'W', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 13, 'tempC': 20, 'weatherDesc': 'Sunny', 'cloudCoverPct': 19, 'uvIndex': 6, 'windspeedKph': 14, 'windDirectionDeg': 270, 'windDirectionCompass': 'W', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 14, 'tempC': 20, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 20, 'uvIndex': 5, 'windspeedKph': 15, 'windDirectionDeg': 264, 'windDirectionCompass': 'W', 'precipitationMm': 0, 'humidityPct': 38, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 15, 'tempC': 20, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 22, 'uvIndex': 5, 'windspeedKph': 16, 'windDirectionDeg': 259, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 37, 'visibilityKm': 10, 'pressureMb': 1007},
+            {'hour': 16, 'tempC': 18, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 20, 'uvIndex': 5, 'windspeedKph': 15, 'windDirectionDeg': 255, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 39, 'visibilityKm': 10, 'pressureMb': 1008},
+            {'hour': 17, 'tempC': 17, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 18, 'uvIndex': 5, 'windspeedKph': 14, 'windDirectionDeg': 251, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 42, 'visibilityKm': 10, 'pressureMb': 1008},
+            {'hour': 18, 'tempC': 16, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 16, 'uvIndex': 1, 'windspeedKph': 13, 'windDirectionDeg': 247, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 44, 'visibilityKm': 10, 'pressureMb': 1009},
+            {'hour': 19, 'tempC': 15, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 14, 'uvIndex': 1, 'windspeedKph': 11, 'windDirectionDeg': 237, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 50, 'visibilityKm': 10, 'pressureMb': 1010},
+            {'hour': 20, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 11, 'uvIndex': 1, 'windspeedKph': 9, 'windDirectionDeg': 227, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 55, 'visibilityKm': 10, 'pressureMb': 1011},
+            {'hour': 21, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 9, 'uvIndex': 1, 'windspeedKph': 7, 'windDirectionDeg': 217, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 60, 'visibilityKm': 10, 'pressureMb': 1012},
+            {'hour': 22, 'tempC': 11, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 7, 'uvIndex': 1, 'windspeedKph': 6, 'windDirectionDeg': 212, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 64, 'visibilityKm': 10, 'pressureMb': 1012},
+            {'hour': 23, 'tempC': 9, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 5, 'uvIndex': 1, 'windspeedKph': 4, 'windDirectionDeg': 207, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1012}]}
+        mock_1.return_value.json.return_value = a
+        # Start time between sunrise time and sunset time, end time after sunset time
+        cc = a['hourlyWeatherHistory']
+        def c_c (cc_i,hour):
+            cc_val = cc[cc_i]['cloudCoverPct']
+            sunset = datetime.datetime.strptime(a['sunset'],"%H:%M:%S")
+            sunrise = datetime.datetime.strptime(a['sunrise'],"%H:%M:%S")
+            if sunset.minute < sunrise.minute:
+                sunset -= timedelta(hours=1)
+                dl = (sunset.hour - sunrise.hour) + (sunset.minute + 60 - sunrise.minute)/60
+            else :
+                dl = (sunset.hour - sunrise.hour) + (sunset.minute - sunrise.minute)/60
+            return round(a['sunHours']*(hour/dl)*(1-cc_val/100)*50*0.20,11)
 
-    # def test_calculate_solar_energy_within_a_day(self):
-    #     self.calculator = Calculator(6001, "25/12/2020")
-    #     # self.assertAlmostEqual(self.calculator.calculate_solar_energy_within_a_day("25/12/2020", "08:00", "09:00"),
-    #     #                        6.04, 1)
-    #
-    #     # print(self.calculator.get_duration("1030", "1100"))
-    #     self.calculator.calculate_solar_energy_within_a_day_by_hour("25/12/2020", "23:45", "00:30")
-    #
-    #     self.calculator.calculate_solar_energy_new(start_date="01/08/2021", start_time="11:00",
-    #                                                      initial_state=0, final_state=100,
-    #                                                      capacity=90, power=2.0)
-    #     self.calculator.calculate_solar_energy_new(start_date="01/08/2021", start_time="07:30",
-    #                                                      initial_state=90, final_state=100,
-    #                                                      capacity=90, power=2.0)
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "10:00", "20:00"),[[1000, 1100, c_c(10,1)], [1100, 1200, c_c(11,1)], [1200, 1300, c_c(12,1)], [1300, 1400, c_c(13,1)], [1400, 1500, c_c(14,1)], [1500, 1600, c_c(15,1)], [1600, 1700, c_c(16,1)], [1700, 1800, c_c(17,1)], [1800, 1900, c_c(18,1)], [1900, 2000, c_c(19,0.1)], [2000, 2000, 0.0]])
+
+        # Start time before sunrise time, end time before sunrise time
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "03:00", "05:00"),[[300, 400, c_c(3,0)], [400, 500, c_c(4,0)], [500, 500, 0.0]])
+
+        # Start time after sunset time
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "20:00", "23:00"),[[2000, 2100, c_c(20,0)], [2100, 2200, c_c(21,0)], [2200, 2300, c_c(22,0)], [2300, 2300, 0.0]])
+
+        # Start time before sunrise time, end time after sunset
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "05:00", "20:00"),[[500, 600, c_c(5,16/60)], [600, 700, c_c(6,1)], [700, 800, c_c(7,1)], [800, 900, c_c(8,1)], [900, 1000, c_c(9,1)], [1000, 1100, c_c(10,1)], [1100, 1200, c_c(11,1)], [1200, 1300,c_c(12,1)], [1300, 1400, c_c(13,1)], [1400, 1500, c_c(14,1)], [1500, 1600, c_c(15,1)], [1600, 1700, c_c(16,1)], [1700, 1800, c_c(17,1)], [1800, 1900,c_c(18,1)], [1900, 2000, c_c(19,0.1)], [2000, 2000, 0.0]])
 
 
