@@ -1,6 +1,6 @@
 from unittest import mock
 
-from ..app.calculator import *
+from app.calculator import *
 import unittest
 import datetime
 from unittest.mock import Mock, patch
