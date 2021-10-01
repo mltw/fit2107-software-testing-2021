@@ -359,7 +359,6 @@ class Calculator():
         # self.location_id = self.location_data[0]['id']
         date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         month = str(date_time_obj.month)
-        print("month", month, len(month))
         if len(month) != 2:
             month = "0" + month
         else:
@@ -513,7 +512,7 @@ class Calculator():
             else: # = elif start_time > ss
                 du = 0
 
-            solar_energy = si * du / dl * 50 * 0.2
+            solar_energy = round(si * du / dl * 50 * 0.2,11)
 
             arr.append([start_time_temp, end_time_temp, solar_energy])
             start_time_hour += 1
@@ -554,7 +553,6 @@ class Calculator():
                                   + "/" + str(date_time_obj.date())[5:7] \
                                   + "/" + str(date_time_obj.date())[0:4]
                 # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
-
                 res += (self.calculate_solar_energy_within_a_day_by_hour(charge_date_new, start_time_new, "23:59"))
                 date_time_obj += timedelta(days=1)
                 start_time_new = "00:00"
