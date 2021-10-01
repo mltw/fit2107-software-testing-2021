@@ -489,8 +489,7 @@ class Calculator():
     # --------------------------------- Requirement 2 -----------------------------------
     def calculate_solar_energy_within_a_day_by_hour(self, start_date, start_time, end_time):
         """
-        Function that calculates the solar energy received on an hourly basis based on the given starting date and charging
-        start and end times
+        Function that calculates the solar energy received on an hourly basis for a single day based on the given starting date and charging start and end times
         :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
         :param start_time   : string representing the starting time for charging in HH24:MM format
         :param end_time     : string representing the ending time for charging in HH24:MM format
@@ -627,60 +626,68 @@ class Calculator():
 
     # --------------------------------- Requirement 3 -----------------------------------
     def calculate_solar_energy_within_a_day_by_hour_w_cc(self, start_date, start_time, end_time):
+        """
+        Function that calculates the solar energy received on an hourly basis for a single day based on the given starting date and charging start and end times, as well as cloud cover taken into consideration
+        :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
+        :param start_time   : string representing the starting time for charging in HH24:MM format
+        :param end_time     : string representing the ending time for charging in HH24:MM format
+        :return             : an array containing arrays that represent the solar energy generated for each hour from start_time
+                              to end_time
+        """
         # get solar hour/insolation (si) and daylight length (dl)
         si = self.get_sun_hour(start_date)
         dl = self.get_day_light_length(start_date)
-        # cc = self.get_cloud_cover(start_date, start_time, end_time)
 
-        # get sunrise and sunset time
+        # API endpoint for weather data
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        # self.location_id = self.location_data[0]['id']
 
+        # extracting each component from the date for reformatting
         year = str(start_date)[6:10]
         month = str(start_date)[3:5]
         day = str(start_date)[0:2]
         date_1 = year + "-" + month + "-" + day
+
+        # setting the parameter values for location and date before calling a GET request from the API to obtain the
+        # weather data for that particular date in that location
         self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
 
+        # sunrise and sunset time from the retrieved weather data json object
         sr = self.weather_data['sunrise']
         ss = self.weather_data['sunset']
 
-        # parse to appropriate format
+        # conversion of sunrise and sunset time to integer in required format
         sr = int(str(sr[0:2]) + str(sr[3:5]))
         ss = int(str(ss[0:2]) + str(ss[3:5]))
 
+        # extracting the hour and minute component of start_time and compressing it into a single integer
         start_time_hour = int(str(start_time)[0:2])
         start_time_minute = int(str(start_time)[3:5])
         start_time = int(str(start_time[0:2]) + str(start_time[3:5]))
 
+        # extracting the hour and minute component of ed_time and compressing it into a single integer
         end_time_hour = int(str(end_time)[0:2])
         end_time_minute = int(str(end_time)[3:5])
         end_time = int(str(end_time[0:2]) + str(end_time[3:5]))
 
         arr = []
-
-        while start_time_hour <= end_time_hour:
-            if start_time_hour == end_time_hour:
+        while start_time_hour <= end_time_hour: # calculate solar energy generated on hourly basis with cloud cover
+            if start_time_hour == end_time_hour:    # start_time and end_time within the same hour
                 start_time_temp = start_time
                 end_time_temp_hour = start_time_hour
                 end_time_temp = end_time
                 end_time_temp_formatted = str(end_time_temp_hour) + ":" + str(end_time_minute)
-            else:
+            else:   # start_time and end_time different hours
                 end_time_temp_hour = start_time_hour + 1
                 start_time_temp = start_time
                 end_time_temp = int(str(end_time_temp_hour) + "00")
                 end_time_temp_formatted = str(end_time_temp_hour) + ":00"
 
-            # print('st', str(start_time_hour)+":"+ str(start_time_minute))
-            # print('et', end_time_temp_formatted)
-            cc = self.get_cloud_cover(start_date, str(start_time_hour)+":"+ str(start_time_minute),
-                                      end_time_temp_formatted)
-            if ss >= start_time_temp >= sr:
-                if end_time_temp >= ss:
+            cc = self.get_cloud_cover(start_date, str(start_time_hour) + ":" + str(start_time_minute), end_time_temp_formatted)
+            if ss >= start_time_temp >= sr: # starting time in between sunrise and sunset
+                if end_time_temp >= ss: # solar energy non-existent for time beyond sunset
                     du = self.get_duration(str(start_time_temp), str(ss))
-
                 else:
                     du = self.get_duration(str(start_time_temp), str(end_time_temp))
 
@@ -689,10 +696,11 @@ class Calculator():
                     du = self.get_duration(str(sr), str(end_time_temp))
                 elif end_time_temp > ss:
                     du = self.get_duration(str(sr), str(ss))
-                else:
+                else:   # charging period before sunrise
                     du = 0
-            else:  # = elif start_time > ss
+            else:   # start_time > ss
                 du = 0
+
             solar_energy = round(si * du / dl * (1 - cc / 100) * 50 * 0.20, 11)
             arr.append([start_time_temp, end_time_temp, solar_energy])
             start_time_hour += 1
