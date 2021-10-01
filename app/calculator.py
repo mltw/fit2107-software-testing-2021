@@ -509,8 +509,8 @@ class Calculator():
 
         # extracting the hour and minute components (if any) from the given ending time string
         end_time_hour = start_time_hour
-        if len(end_time) == 1 or len(end_time) == 2:
-            end_time_minute = start_time
+        if len(end_time) == 1 or len(end_time) == 2:    # no hour component
+            end_time_minute = end_time
         elif len(end_time) == 3:    # hour component in single digit
             end_time_minute = end_time[-2:]
             end_time_hour = end_time[0]
@@ -527,7 +527,8 @@ class Calculator():
         # time readjustment so that end_time_minute is always >= start_time_minute for subtraction purposes
         if end_time_minute < start_time_minute:
             end_time_minute += 60
-            end_time_hour -= 1
+            if end_time_hour != 0:
+                end_time_hour -= 1
 
         du_minute = end_time_minute - start_time_minute
         du_hour = end_time_hour - start_time_hour
