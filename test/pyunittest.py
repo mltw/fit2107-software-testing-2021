@@ -142,6 +142,13 @@ class TestCalculator(unittest.TestCase):
         # Branch 121 --> 130 (means multiple hour, but no last hour)
         self.assertEqual(self.calculator.cost_calculation_v1(0,100,150,10,50,"12/09/2021","01:00"),7.5)
 
+    def test_calculate_solar_energy_new_w_cc(self):
+        self.calculator = Calculator(7250, "22/02/2022")
+        self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
+                                                              initial_state=0, final_state=37.5,
+                                                              capacity=4, power=2.0)
+
+    @patch('project.app.calculator.requests.get')
     @patch('app.calculator.requests.get')
     def test_calculate_solar_energy_new_single_day(self,mock_1):
         self.calculator = Calculator(7250, "22/02/2021")
@@ -188,6 +195,11 @@ class TestCalculator(unittest.TestCase):
                                                         final_state=100,
                                                         capacity=20, power=2),[[1000, 1100, s_p(1,single_day_api_rtn)], [1100, 1200, s_p(1,mock_1.return_value.json())], [1200, 1300, s_p(1,mock_1.return_value.json())], [1300, 1400, s_p(1,mock_1.return_value.json())], [1400, 1500, s_p(1,mock_1.return_value.json())], [1500, 1600, s_p(1,mock_1.return_value.json())], [1600, 1700, s_p(1,mock_1.return_value.json())], [1700, 1800, s_p(1,mock_1.return_value.json())], [1800, 1900, s_p(1,mock_1.return_value.json())], [1900, 2000, s_p(0.1,mock_1.return_value.json())], [2000, 2000, 0.0]]  )
         # future date
+        self.assertRaises(AssertionError,lambda : self.calculator.calculate_solar_energy_new(start_date="22/02/2022",
+                                                                    start_time="10:00",
+                                                                    initial_state=0,
+                                                                    final_state=100,
+                                                                    capacity=20, power=2) )
 
     @patch('app.calculator.requests.get')
     @mock.patch.object(Calculator, 'calculate_solar_energy_within_a_day_by_hour', return_value=[])
@@ -423,6 +435,9 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_power(6), 36)
         self.assertEqual(self.calculator.get_power(7), 90)
         self.assertEqual(self.calculator.get_power(8), 350)
+        self.assertRaises(AssertionError,lambda: self.calculator.get_power(9))
+        self.assertRaises(AssertionError,lambda: self.calculator.get_power("abc"))
+        self.assertRaises(AssertionError,lambda: self.calculator.get_power("wow"))
 
     @patch('app.calculator.requests.get')
     def test_get_price(self,mock):
@@ -437,6 +452,9 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.get_price(6), 20)
         self.assertEqual(self.calculator.get_price(7), 30)
         self.assertEqual(self.calculator.get_price(8), 50)
+        self.assertRaises(AssertionError,lambda: self.calculator.get_price(9))
+        self.assertRaises(AssertionError,lambda: self.calculator.get_price("abc"))
+        self.assertRaises(AssertionError,lambda: self.calculator.get_price("wow"))
 
     @patch('app.calculator.requests.get')
     def test_get_cloud_cover(self,mock):
@@ -527,7 +545,27 @@ class TestCalculator(unittest.TestCase):
         # Start time before sunrise time, end time after sunset
         self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "05:00", "20:00"),[[500, 600, c_c(5,16/60)], [600, 700, c_c(6,1)], [700, 800, c_c(7,1)], [800, 900, c_c(8,1)], [900, 1000, c_c(9,1)], [1000, 1100, c_c(10,1)], [1100, 1200, c_c(11,1)], [1200, 1300,c_c(12,1)], [1300, 1400, c_c(13,1)], [1400, 1500, c_c(14,1)], [1500, 1600, c_c(15,1)], [1600, 1700, c_c(16,1)], [1700, 1800, c_c(17,1)], [1800, 1900,c_c(18,1)], [1900, 2000, c_c(19,0.1)], [2000, 2000, 0.0]])
 
-    @patch('app.calculator.requests.get')
+        # future date
+        self.assertRaises(AssertionError,lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2023", "05:00", "20:00") )
+
+
+        # False data start date
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("abc","05:00", "20:00"))
+
+        # False data start time
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2023", "abc" , "20:00"))
+
+        # False data end time
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2023", "05:00" , "122313"))
+
+        # end time and start time are not in correct format
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "25:00", "10:00"))
+
+        # end time < start time
+        self.assertRaises(AssertionError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "23:00", "22:00"))
+        # input must be string
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "23:00", 100))
+    @patch('project.app.calculator.requests.get')
     def test_calculate_solar_energy_within_a_day_by_hour(self,mock_1):
         self.calculator = Calculator(7250, "22/02/2022")
         self.calculator.location_id = "22d72902-b72f-4ca0-a522-4dbfb77a7b78"
@@ -579,3 +617,23 @@ class TestCalculator(unittest.TestCase):
         # Start time before sunrise time, end time after sunset
         self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "05:00", "20:00"),[[500, 600, s_p(16/60)], [600, 700, s_p(1)], [700, 800, s_p(1)], [800, 900, s_p(1)], [900, 1000, s_p(1)], [1000, 1100, s_p(1)], [1100, 1200, s_p(1)], [1200, 1300,s_p(1)], [1300, 1400, s_p(1)], [1400, 1500, s_p(1)], [1500, 1600, s_p(1)], [1600, 1700, s_p(1)], [1700, 1800, s_p(1)], [1800, 1900,s_p(1)], [1900, 2000, s_p(0.1)], [2000, 2000, 0.0]])
 
+        # future date
+        self.assertRaises(AssertionError,lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "05:00", "20:00") )
+
+        # False data start date
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("abc","05:00", "20:00"))
+
+        # False data start time
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "abc" , "20:00"))
+
+        # False data end time
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "05:00" , "122313"))
+
+        # wrong format for time
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "25:00", "10:00"))
+
+        # start time more than end time
+        self.assertRaises(AssertionError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", "22:00"))
+
+        # please use string
+        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", 100))
