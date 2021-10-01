@@ -628,7 +628,7 @@ class Calculator():
             else: # start_time > ss
                 du = 0
 
-            solar_energy = si * du / dl * 50 * 0.2
+            solar_energy = round(si * du / dl * 50 * 0.2,11)
 
             arr.append([start_time_temp, end_time_temp, solar_energy])
             start_time_hour += 1
@@ -711,6 +711,15 @@ class Calculator():
                               to end_time
         """
         # get solar hour/insolation (si) and daylight length (dl)
+        if str(type(start_date)) != "<class 'str'>" or str(type(start_time)) != "<class 'str'>" or str(type(end_time)) != "<class 'str'>":
+            raise ValueError("please use string")
+        max_date_allowed = datetime.now() - timedelta(days=2)
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+        start_time_test = datetime.strptime(start_time,'%H:%M')
+        end_time_test = datetime.strptime(end_time,'%H:%M')
+        assert (current_date < max_date_allowed)
+        assert (start_time_test < end_time_test)
+
         si = self.get_sun_hour(start_date)
         dl = self.get_day_light_length(start_date)
 
@@ -813,7 +822,7 @@ class Calculator():
             while ref_date_per_year.year != datetime.now().year:
                 ref_date_per_year -= relativedelta(years=1)
 
-            if ref_date_per_year <= current_date:
+            if ref_date_per_year <= datetime.now():
                 # for cases when the nearest reference date (same year) is earlier than today's date
                 # eg start_date = 31/8/2022, today's date = 25/9/2021, nearest reference date = 31/8/2021 (valid)
                 # thus the reference dates are 31/8/2021, 31/8/2020, 31/8/2019
@@ -892,7 +901,10 @@ class Calculator():
         :param charger_configuration    : integer representation of a charger configuration
         :return                         : power output for the given charger configuration
         """
-        charger_configuration = int(charger_configuration)
+        try :
+            charger_configuration = int(charger_configuration)
+        except ValueError :
+            raise AssertionError("please give a valid charger configuration between 1 and 8")
         if charger_configuration == 1:
             return 2.0
         elif charger_configuration == 2:
@@ -907,8 +919,10 @@ class Calculator():
             return 36
         elif charger_configuration == 7:
             return 90
-        else:
+        elif charger_configuration == 8:
             return 350
+        else :
+            raise AssertionError("please give a valid charger_configuration")
 
     def get_price(self, charger_configuration):
         """
@@ -916,7 +930,10 @@ class Calculator():
         :param charger_configuration    : integer representation of a charger configuration
         :return                         : price for the given charger configuration
         """
-        charger_configuration = int(charger_configuration)
+        try :
+            charger_configuration = int(charger_configuration)
+        except ValueError :
+            raise AssertionError("please give a valid charger configuration between 1 and 8")
         if charger_configuration == 1:
             return 5.0
         elif charger_configuration == 2:
@@ -931,5 +948,7 @@ class Calculator():
             return 20
         elif charger_configuration == 7:
             return 30
-        else:
+        elif charger_configuration == 8 :
             return 50
+        else :
+            raise AssertionError("Please give a valid charger configuration")
