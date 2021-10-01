@@ -709,21 +709,31 @@ class Calculator():
 
         return arr
 
-    def calculate_solar_energy_new_w_cc(self, start_date, start_time, initial_state, final_state,
-                                        capacity, power):
+    def calculate_solar_energy_new_w_cc(self, start_date, start_time, initial_state, final_state, capacity, power):
+        """
+        Function that calculates the solar energy generated during the charging period required to bring the battery level from
+        the initial state to the final state given its capacity and power provided by the charger. These calculations take into
+        account the cloud cover for each hour/partial hour during the charging duration. The output generated consists of the
+        solar energy values for the start_date for each valid year
+        :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
+        :param start_time   : string representing the starting time for charging in HH24:MM format
+        :param initial_state: float between 0 and 100 at most equal to final_state 
+        :param final_state  : float between 0 and 100 at least equal to initial_state
+        :param capacity     : float between 0.65 and 100
+        :param power        : float value according to available charger configurations
+        :return             : an array of arrays of arrayseach representing the hourly solar energy values for each day elapsed 
+                              during the charging duration
+        """
         # check the maximum date allowed as input by the calculator, which is two days before the current date
         max_date_allowed = datetime.now() - timedelta(days=2)
-
         current_date = datetime.strptime(start_date, '%d/%m/%Y')
 
         date_arr = []
         # put all required dates in date_arr
-        if current_date <= max_date_allowed:
-            # past
+        if current_date <= max_date_allowed:    # date in the past
             date_arr.append(current_date)
-        else:
+        else:   # date in the future, so obtain reference dates
             ref_date_per_year = current_date
-            # future, so find reference dates
             while ref_date_per_year.year != datetime.now().year:
                 ref_date_per_year -= relativedelta(years=1)
 
@@ -740,60 +750,55 @@ class Calculator():
                 for i in range(3):
                     date_arr.append(ref_date_per_year - relativedelta(years=i+1))
 
-
+        # obtaining the charging time required to provided enough energy to go from initial to final state
         charge_time = self.time_calculation(initial_state, final_state, capacity, power)
+
+        # extracting the hour and minute components of the start_time
         start_time_hour = int(start_time[0:2])
         start_time_minute = int(start_time[3:5])
 
+        # extracting the hour and minute components of the charging time
         charge_time_hour = charge_time * 60 // 60
         charge_time_minute = charge_time * 60 % 60
 
+        # calculating the hour and minute components of the ending time after charging
         end_time_hour = start_time_hour + charge_time_hour
         end_time_minute = start_time_minute + charge_time_minute
 
+        # conversion of the starting and ending times into datetime objects
         start_time_obj = datetime.strptime(start_time, '%H:%M')
         end_time_obj = start_time_obj + timedelta(hours=charge_time_hour, minutes=charge_time_minute)
-
-        # print('eth: ' + str(end_time_hour))
-        # print('etm: ' + str(end_time_minute))
-        # print('cth: ' + str(charge_time_hour))
-        # print('ctm: ' + str(charge_time_minute))
-        # print('eto: ' + str(end_time_obj))
-
-        # if end_time_minute >= 60:
-        #     end_time_minute -= 60
-        #     end_time_hour += 1
-        # end_time = str(end_time_hour) + ":" + str(end_time_minute)
         end_time = str(end_time_obj.time())[0:5]
 
         total_res = []
-        for date in date_arr:
+        for date in date_arr:   # calculating solar energy values for the start_date in each year
+            # extracting each component from the date for reformatting
             arr = str(date.date()).split('-')
             year = arr[0]
             month = arr[1]
             day = arr[2]
             new_start_date = day + "/" + month + "/" + year
-            # print(new_start_date)
+
             res = []
-            # within a single day
-            if end_time_hour + end_time_minute / 60 <= 23.59:
-                # print('end time ', end_time)
+            if end_time_hour + end_time_minute / 60 <= 23.59:   # within a single day
                 res += (self.calculate_solar_energy_within_a_day_by_hour_w_cc(new_start_date, start_time, end_time))
-            else:
+            else:   # charging spanning more than a day
                 date_time_obj = datetime.strptime(new_start_date + " " + start_time, '%d/%m/%Y %H:%M')
                 date_time_after_charge = date_time_obj + timedelta(hours=charge_time)
                 start_time_new = start_time
 
+                # obtaining the hourly solar energy values with cloud cover for each day elapsed between the start_time and 
+                # end_time
                 while date_time_obj.day != date_time_after_charge.day:
                     charge_date_new = str(date_time_obj.date())[8:10] \
                                       + "/" + str(date_time_obj.date())[5:7] \
                                       + "/" + str(date_time_obj.date())[0:4]
-                    # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
 
                     res += (self.calculate_solar_energy_within_a_day_by_hour_w_cc(charge_date_new, start_time_new, "23:59"))
                     date_time_obj += timedelta(days=1)
                     start_time_new = "00:00"
 
+                # hourly solar energy values with cloud cover for the final day
                 charge_date_new = str(date_time_obj.date())[8:10] \
                                   + "/" + str(date_time_obj.date())[5:7] \
                                   + "/" + str(date_time_obj.date())[0:4]
