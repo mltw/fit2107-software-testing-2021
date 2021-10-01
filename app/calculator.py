@@ -455,10 +455,18 @@ class Calculator():
 
     # --------------------------------- Requirement 2 -----------------------------------
     def calculate_solar_energy_within_a_day_by_hour(self, start_date, start_time, end_time):
+        max_date_allowed = datetime.now() - timedelta(days=2)
+        if str(type(start_date)) != "<class 'str'>" or str(type(start_time)) != "<class 'str'>" or str(type(end_time)) != "<class 'str'>":
+            raise ValueError("please use string")
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+        start_time_test = datetime.strptime(start_time,'%H:%M')
+        end_time_test = datetime.strptime(end_time,'%H:%M')
+        assert (current_date < max_date_allowed)
+        assert (start_time_test < end_time_test)
+
         # get solar hour/insolation (si) and daylight length (dl)
         si = self.get_sun_hour(start_date)
         dl = self.get_day_light_length(start_date)
-
         # get sunrise and sunset time
         self.weather_link = "http://118.138.246.158/api/v1/weather"
         # self.location_id = self.location_data[0]['id']
@@ -522,6 +530,10 @@ class Calculator():
 
     def calculate_solar_energy_new(self, start_date, start_time, initial_state, final_state,
                                    capacity, power):
+
+        max_date_allowed = datetime.now() - timedelta(days=2)
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+        assert (current_date < max_date_allowed)
         charge_time = self.time_calculation(initial_state, final_state, capacity, power)
         start_time_hour = int(start_time[0:2])
         start_time_minute = int(start_time[3:5])
@@ -567,6 +579,15 @@ class Calculator():
     # --------------------------------- Requirement 3 -----------------------------------
     def calculate_solar_energy_within_a_day_by_hour_w_cc(self, start_date, start_time, end_time):
         # get solar hour/insolation (si) and daylight length (dl)
+        if str(type(start_date)) != "<class 'str'>" or str(type(start_time)) != "<class 'str'>" or str(type(end_time)) != "<class 'str'>":
+            raise ValueError("please use string")
+        max_date_allowed = datetime.now() - timedelta(days=2)
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+        start_time_test = datetime.strptime(start_time,'%H:%M')
+        end_time_test = datetime.strptime(end_time,'%H:%M')
+        assert (current_date < max_date_allowed)
+        assert (start_time_test < end_time_test)
+
         si = self.get_sun_hour(start_date)
         dl = self.get_day_light_length(start_date)
         # cc = self.get_cloud_cover(start_date, start_time, end_time)
@@ -742,7 +763,10 @@ class Calculator():
         :param charger_configuration    : integer representation of a charger configuration
         :return                         : power output for the given charger configuration
         """
-        charger_configuration = int(charger_configuration)
+        try :
+            charger_configuration = int(charger_configuration)
+        except ValueError :
+            raise AssertionError("please give a valid charger configuration between 1 and 8")
         if charger_configuration == 1:
             return 2.0
         elif charger_configuration == 2:
@@ -757,8 +781,10 @@ class Calculator():
             return 36
         elif charger_configuration == 7:
             return 90
-        else:
+        elif charger_configuration == 8:
             return 350
+        else :
+            raise AssertionError("please give a valid charger_configuration")
 
     def get_price(self, charger_configuration):
         """
@@ -766,7 +792,10 @@ class Calculator():
         :param charger_configuration    : integer representation of a charger configuration
         :return                         : price for the given charger configuration
         """
-        charger_configuration = int(charger_configuration)
+        try :
+            charger_configuration = int(charger_configuration)
+        except ValueError :
+            raise AssertionError("please give a valid charger configuration between 1 and 8")
         if charger_configuration == 1:
             return 5.0
         elif charger_configuration == 2:
@@ -781,5 +810,7 @@ class Calculator():
             return 20
         elif charger_configuration == 7:
             return 30
-        else:
+        elif charger_configuration == 8 :
             return 50
+        else :
+            raise AssertionError("Please give a valid charger configuration")
