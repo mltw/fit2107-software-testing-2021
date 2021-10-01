@@ -359,7 +359,7 @@ class Calculator():
         # self.location_id = self.location_data[0]['id']
         date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         month = str(date_time_obj.month)
-        print("month", month)
+        print("month", month, len(month))
         if len(month) != 2:
             month = "0" + month
         else:
