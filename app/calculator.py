@@ -305,12 +305,11 @@ class Calculator():
         """
         Function that retrieves the solar insulation value from the online API given the provided datetime and charging
         location
-        :param start_date   : datetime object representing the starting date for charging
+        :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
         :return             : the solar insolation or sun hour value for the given starting charging date and location
         """
         # API endpoint for weather data
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        # self.location_id = self.location_data[0]['id']
 
         # extracting each component from the date for reformatting
         year = str(start_date)[6:10]
@@ -332,12 +331,11 @@ class Calculator():
         """
         Function that provides the duration of daylight for the given date (time between sunrise and sunset) in hours by
         obtaining the sunrise and sunset times for the given date through the API
-        :param start_date   : datetime object representing the starting date for charging
+        :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
         :return             : the duration of daylight for the given date in hours
         """
         # API endpoint for weather data
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        # self.location_id = self.location_data[0]['id']
 
         # extracting each component from the date for reformatting
         date = start_date.split('/')
@@ -371,52 +369,61 @@ class Calculator():
         return (sunset_hour - sunrise_hour) + (sunset_minute - sunrise_minute)/60
 
     def get_cloud_cover(self, start_date, start_time, end_time):
-        # this method should be called within the same start and end time hour
+        """
+        Function that retrieves the cloud cover value from the API based on the given starting charging date and time given
+        that the start_time and end_time fall within the same hour
+        :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
+        :param start_time   : string representing the starting time for charging in HH24:MM format
+        :param end_time     : string representing the ending time for charging in HH24:MM format
+        :return             : the cloud cover value on start_date during the hour represented in start_time
+        """
+        # API endpoint for weather data
         self.weather_link = "http://118.138.246.158/api/v1/weather"
-        # self.location_id = self.location_data[0]['id']
+
+        # converting start_date into a datetime object and ensuring the month component is represented by two digits
         date_time_obj = datetime.strptime(start_date, '%d/%m/%Y')
         month = str(date_time_obj.month)
         if len(month) != 2:
             month = "0" + month
         else:
             pass
-
+        
+        # ensuring the day component is represented by two digits
         day = str(date_time_obj.day)
         if len(day) != 2:
             day = "0" + day
         else:
             pass
-
+        
+        # setting the parameter values for location and date before calling a GET request from the API to obtain the
+        # weather data for that particular date in that location
         new_date = str(date_time_obj.year) + "-" + month + "-" + day
         self.weather_PARAMS = {'location': self.location_id, 'date': new_date}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
-        #print(self.weather_data)
 
         # per hour basis
-        # start time format 03:22 -> [3,22]
-        start_time = start_time.split(':')
+        start_time = start_time.split(':')  # start time format 03:22 -> [3,22]
         start_time_hour = int(start_time[0])
-        # print('st', start_time)
-        start_time_as_integer = int(start_time[0]+start_time[1])
+        start_time_as_integer = int(start_time[0] + start_time[1])
 
-        # end time format 03:22 -> [3,22]
-        end_time = end_time.split(':')
-        # print('et', end_time)
+        end_time = end_time.split(':')  # end time format 03:22 -> [3,22]
         end_time_as_integer = int(end_time[0] + end_time[1])
 
+        # check to ensure end_time is at least equal to start_time
         if end_time_as_integer < start_time_as_integer:
             raise ValueError("End time cannot be earlier than start time")
         else:
             cc = 0
-            # print(self.weather_data)
+            # iterate through the cloud cover data for each hour in the json object and assign the cloud cover value
+            # for the hour that matches that of the given start_time, else maintain the cloud cover at 0
             for i in range(24):
-                # print(i, self.weather_data["hourlyWeatherHistory"][i]["hour"], self.weather_data["hourlyWeatherHistory"][i]["cloudCoverPct"])
                 if self.weather_data["hourlyWeatherHistory"][i]["hour"] == start_time_hour:
                     cc = self.weather_data["hourlyWeatherHistory"][i]["cloudCoverPct"]
                     return cc
                 else:
                     pass
+                
             return cc
 
     def get_duration(self, start_time, end_time):
