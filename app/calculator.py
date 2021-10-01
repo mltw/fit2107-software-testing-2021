@@ -302,17 +302,29 @@ class Calculator():
 
     # to be acquired through API
     def get_sun_hour(self, start_date):
+        """
+        Function that retrieves the solar insulation value from the online API given the provided datetime and charging
+        location
+        :param start_date   : datetime object representing the starting date for charging
+        :return             : the solar insolation or sun hour value for the given starting charging date and location
+        """
+        # API endpoint for weather data
         self.weather_link = "http://118.138.246.158/api/v1/weather"
         # self.location_id = self.location_data[0]['id']
 
+        # extracting each component from the date for reformatting
         year = str(start_date)[6:10]
         month = str(start_date)[3:5]
         day = str(start_date)[0:2]
         date_1 = year + "-" + month + "-" + day
+
+        # setting the parameter values for location and date before calling a GET request from the API to obtain the
+        # weather data for that particular date in that location
         self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
         self.sun_hour = self.weather_data['sunHours']
+        
         return self.sun_hour
 
     # to be acquired through API
