@@ -324,41 +324,46 @@ class Calculator():
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
         self.sun_hour = self.weather_data['sunHours']
-        
+
         return self.sun_hour
 
     # to be acquired through API
     def get_day_light_length(self, start_date):
-        # Meng Yew approved this
-        # per day basis
+        """
+        Function that provides the duration of daylight for the given date (time between sunrise and sunset) in hours by
+        obtaining the sunrise and sunset times for the given date through the API
+        :param start_date   : datetime object representing the starting date for charging
+        :return             : the duration of daylight for the given date in hours
+        """
+        # API endpoint for weather data
         self.weather_link = "http://118.138.246.158/api/v1/weather"
         # self.location_id = self.location_data[0]['id']
 
+        # extracting each component from the date for reformatting
         date = start_date.split('/')
         year = date[2]
         month = date[1]
         day = date[0]
         date_1 = year + "-" + month + "-" + day
+
+        # setting the parameter values for location and date before calling a GET request from the API to obtain the
+        # weather data for that particular date in that location
         self.weather_PARAMS = {'location': self.location_id, 'date': date_1}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
-        # sunrise_time_format : 05:10:00
-        # sunset_time_format : 19:24:00
-        sunrise_time = self.weather_data['sunrise']
-        sunset_time = self.weather_data['sunset']
 
-        # sunrise_time_format : [hour,minute,seconds]
-        # sunrise_time_format : [5,10,0]
-        # sunset_time_format : [19,24,0]
-        sunrise_time = sunrise_time.split(':')
-        sunset_time  = sunset_time.split(':')
+        # format the extracted data such that it is in the form [hour, minute, seconds]
+        sunrise_time = self.weather_data['sunrise'].split(':')  # sunrise_time_format : 05:10:00
+        sunset_time = self.weather_data['sunset'].split(':')    # sunset_time_format : 19:24:00
 
+        # extracting the hour and minute components of the sunrise and sunset times
         sunrise_hour = int(sunrise_time[0])
         sunrise_minute = int(sunrise_time[1])
 
         sunset_hour = int(sunset_time[0])
         sunset_minute = int(sunset_time[1])
 
+        # time readjustment so that sunset_minute is always >= sunrise_minute for subtraction purposes
         if sunset_minute < sunrise_minute:
             sunset_minute += 60
             sunset_hour -= 1
