@@ -565,44 +565,59 @@ class Calculator():
 
         return arr
 
-    def calculate_solar_energy_new(self, start_date, start_time, initial_state, final_state,
-                                   capacity, power):
+    def calculate_solar_energy_new(self, start_date, start_time, initial_state, final_state, capacity, power):
+        """
+        Function that calculates the solar energy generated during the charging period required to bring the battery level from
+        the initial state to the final state given its capacity and power provided by the charger
+        :param start_date   : string representing the starting date for charging in DD/MM/YYYY format
+        :param start_time   : string representing the starting time for charging in HH24:MM format
+        :param initial_state: float between 0 and 100 at most equal to final_state 
+        :param final_state  : float between 0 and 100 at least equal to initial_state
+        :param capacity     : float between 0.65 and 100
+        :param power        : float value according to available charger configurations
+        :return             : an array of arrays each representing the hourly solar energy values for each day elapsed during the
+                              charging duration
+        """
+        # obtaining the charging time required to provided enough energy to go from initial to final state
         charge_time = self.time_calculation(initial_state, final_state, capacity, power)
+
+        # extracting the hour and minute components of the start_time
         start_time_hour = int(start_time[0:2])
         start_time_minute = int(start_time[3:5])
 
-        # start_time_in_hours = start_time_hour + start_time_minute/60
-
+        # extracting the hour and minute components of the charging time
         charge_time_hour = charge_time * 60 // 60
         charge_time_minute = charge_time * 60 % 60
 
+        # calculating the hour and minute components of the ending time after charging
         end_time_hour = start_time_hour + charge_time_hour
         end_time_minute = start_time_minute + charge_time_minute
 
+        # conversion of the starting and ending times into datetime objects
         start_time_obj = datetime.strptime(start_time, '%H:%M')
         end_time_obj = start_time_obj + timedelta(hours=charge_time_hour, minutes=charge_time_minute)
 
         end_time = str(end_time_obj.time())[0:5]
 
         res = []
-        # within a single day
-        if end_time_hour + end_time_minute / 60 <= 23.59:
+        if end_time_hour + end_time_minute / 60 <= 23.59:   # within a single day
             res += (self.calculate_solar_energy_within_a_day_by_hour(start_date, start_time, end_time))
-        else:
+        else:   # charging spanning more than a day
             date_time_obj = datetime.strptime(start_date + " " + start_time, '%d/%m/%Y %H:%M')
             date_time_after_charge = date_time_obj + timedelta(hours=charge_time)
             start_time_new = start_time
 
+            # obtaining the hourly solar energy values for each day elapsed between the start_time and end_time
             while date_time_obj.day != date_time_after_charge.day:
                 charge_date_new = str(date_time_obj.date())[8:10] \
                                   + "/" + str(date_time_obj.date())[5:7] \
                                   + "/" + str(date_time_obj.date())[0:4]
-                # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
 
                 res += (self.calculate_solar_energy_within_a_day_by_hour(charge_date_new, start_time_new, "23:59"))
-                date_time_obj += timedelta(days=1)
+                date_time_obj += timedelta(days=1)  # proceed to the next day
                 start_time_new = "00:00"
 
+            # hourly solar energy values for the final day
             charge_date_new = str(date_time_obj.date())[8:10] \
                               + "/" + str(date_time_obj.date())[5:7] \
                               + "/" + str(date_time_obj.date())[0:4]
