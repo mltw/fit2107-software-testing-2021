@@ -148,10 +148,8 @@ class TestCalculator(unittest.TestCase):
                                                               initial_state=0, final_state=37.5,
                                                               capacity=4, power=2.0)
 
-<<<<<<< HEAD
-=======
-    @patch('project.app.calculator.requests.get')
->>>>>>> 5ea9ae75c4bf12e19eac848be558daa3d96486c5
+
+    @patch('app.calculator.requests.get')
     @patch('app.calculator.requests.get')
     def test_calculate_solar_energy_new_single_day(self,mock_1):
         self.calculator = Calculator(7250, "22/02/2021")
@@ -220,8 +218,6 @@ class TestCalculator(unittest.TestCase):
                                                                     capacity=20, power=2),multiple_day_1_api_rtn +multiple_day_2_api_rtn )
 
     @patch('app.calculator.requests.get')
-<<<<<<< HEAD
-=======
     def test_calculate_solar_energy_new_w_cc(self,mock1):
         self.calculator = Calculator(7250, "22/02/2020", "Launceston")
         self.calculator.location_id = "5998b29a-8e3d-4c1e-857c-b5dce80eea6d"
@@ -379,7 +375,6 @@ class TestCalculator(unittest.TestCase):
         )
 
     @patch('app.calculator.requests.get')
->>>>>>> 5ea9ae75c4bf12e19eac848be558daa3d96486c5
     def test_time_calculation(self,mock):
         self.calculator = Calculator(5000, "14/09/2021")
 
