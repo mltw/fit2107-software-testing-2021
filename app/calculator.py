@@ -649,6 +649,10 @@ class Calculator():
         :return             : an array of arrays each representing the hourly solar energy values for each day elapsed during the
                               charging duration
         """
+        max_date_allowed = datetime.now() - timedelta(days=2)
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+        assert (current_date < max_date_allowed)
+
         # obtaining the charging time required to provided enough energy to go from initial to final state
         charge_time = self.time_calculation(initial_state, final_state, capacity, power)
 
