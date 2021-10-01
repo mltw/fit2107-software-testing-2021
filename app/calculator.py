@@ -679,7 +679,7 @@ class Calculator():
             while ref_date_per_year.year != datetime.now().year:
                 ref_date_per_year -= relativedelta(years=1)
 
-            if ref_date_per_year <= current_date:
+            if ref_date_per_year <= datetime.now():
                 # for cases when the nearest reference date (same year) is earlier than today's date
                 # eg start_date = 31/8/2022, today's date = 25/9/2021, nearest reference date = 31/8/2021 (valid)
                 # thus the reference dates are 31/8/2021, 31/8/2020, 31/8/2019
@@ -725,11 +725,9 @@ class Calculator():
             month = arr[1]
             day = arr[2]
             new_start_date = day + "/" + month + "/" + year
-            # print(new_start_date)
             res = []
             # within a single day
             if end_time_hour + end_time_minute / 60 <= 23.59:
-                # print('end time ', end_time)
                 res += (self.calculate_solar_energy_within_a_day_by_hour_w_cc(new_start_date, start_time, end_time))
             else:
                 date_time_obj = datetime.strptime(new_start_date + " " + start_time, '%d/%m/%Y %H:%M')
@@ -740,7 +738,6 @@ class Calculator():
                     charge_date_new = str(date_time_obj.date())[8:10] \
                                       + "/" + str(date_time_obj.date())[5:7] \
                                       + "/" + str(date_time_obj.date())[0:4]
-                    # temp_duration = timedelta(hours=24) - timedelta(hours=start_time_hour, minutes=start_time_minute)
 
                     res += (self.calculate_solar_energy_within_a_day_by_hour_w_cc(charge_date_new, start_time_new, "23:59"))
                     date_time_obj += timedelta(days=1)
