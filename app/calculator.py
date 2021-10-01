@@ -423,38 +423,45 @@ class Calculator():
                     return cc
                 else:
                     pass
-                
+
             return cc
 
     def get_duration(self, start_time, end_time):
-        # start and end time are time in type string, eg "730", "1640", "20"
-        # it returns the duration between start_time and end_time, in hours
-        # eg if start_time = "1030", end_time = "1200", it will return 1.5 (ie 1 hr 30 minutes)
+        """
+        Function that calculates the duration between the given start_time and end_time in hours
+        :param start_time   : string representing the starting time for charging, eg: "730", "1640", "20"
+        :param end_time     : string representing the ending time for charging
+        :return             : the duration between start_time and end_time in hours
+        """
+        # extracting the hour and minute components (if any) from the given starting time string
         start_time_hour = 0
-        if len(start_time) == 1 or len(start_time) == 2:
+        if len(start_time) == 1 or len(start_time) == 2:    # no hour component
             start_time_minute = start_time
-        elif len(start_time) == 3:
+        elif len(start_time) == 3:  # hour component in single digit
             start_time_minute = start_time[-2:]
             start_time_hour = start_time[0]
-        else:
+        else:   # hour component in double digits
             start_time_minute = start_time[-2:]
             start_time_hour = start_time[0:2]
 
+        # extracting the hour and minute components (if any) from the given ending time string
         end_time_hour = start_time_hour
         if len(end_time) == 1 or len(end_time) == 2:
             end_time_minute = start_time
-        elif len(end_time) == 3:
+        elif len(end_time) == 3:    # hour component in single digit
             end_time_minute = end_time[-2:]
             end_time_hour = end_time[0]
-        else:
+        else:   # hour component in double digits
             end_time_minute = end_time[-2:]
             end_time_hour = end_time[0:2]
 
+        # convert each hour and minute components into integers
         start_time_hour = int(start_time_hour)
         start_time_minute = int(start_time_minute)
         end_time_hour = int(end_time_hour)
         end_time_minute = int(end_time_minute)
 
+        # time readjustment so that end_time_minute is always >= start_time_minute for subtraction purposes
         if end_time_minute < start_time_minute:
             end_time_minute += 60
             end_time_hour -= 1
@@ -462,17 +469,19 @@ class Calculator():
         du_minute = end_time_minute - start_time_minute
         du_hour = end_time_hour - start_time_hour
 
+        # ensuring the minute component of the duration is always double digits
         if len(str(du_minute)) == 1:
            du_minute = '0' + str(du_minute)
         else:
             pass
-        du = int(str(du_hour)+str(du_minute))
 
-        if len(str(du)) == 1 or len(str(du)) == 2:
-            final_du = du / 60 # convert to hours
-        elif len(str(du)) == 3:
+        du = int(str(du_hour) + str(du_minute))
+
+        if len(str(du)) == 1 or len(str(du)) == 2:  # convert to hours
+            final_du = du / 60  
+        elif len(str(du)) == 3: # convert minute component to hours
             final_du = int(str(du)[0]) + int(str(du)[1:3]) / 60
-        else:
+        else:   # convert minute component to hours
             final_du = int(str(du)[0:2]) + int(str(du)[2:4]) / 60
 
         return final_du
