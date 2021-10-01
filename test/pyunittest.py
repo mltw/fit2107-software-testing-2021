@@ -195,9 +195,11 @@ class TestCalculator(unittest.TestCase):
                                                         capacity=20, power=2),[[1000, 1100, s_p(1,single_day_api_rtn)], [1100, 1200, s_p(1,mock_1.return_value.json())], [1200, 1300, s_p(1,mock_1.return_value.json())], [1300, 1400, s_p(1,mock_1.return_value.json())], [1400, 1500, s_p(1,mock_1.return_value.json())], [1500, 1600, s_p(1,mock_1.return_value.json())], [1600, 1700, s_p(1,mock_1.return_value.json())], [1700, 1800, s_p(1,mock_1.return_value.json())], [1800, 1900, s_p(1,mock_1.return_value.json())], [1900, 2000, s_p(0.1,mock_1.return_value.json())], [2000, 2000, 0.0]]  )
         # future date
 
+    @patch('app.calculator.requests.get')
     @mock.patch.object(Calculator, 'calculate_solar_energy_within_a_day_by_hour', return_value=[])
-    def test_calculate_solar_energy_new_multiple_day(self,mock_1):
+    def test_calculate_solar_energy_new_multiple_day(self,mock_1,mock_2):
         self.calculator = Calculator(7250, "22/02/2021")
+        self.calculator.location_id = "22d72902-b72f-4ca0-a522-4dbfb77a7b78"
         # multiple days
         multiple_day_1_api_rtn =[[2000, 2100, 0.0], [2100, 2200, 0.0], [2200, 2300, 0.0], [2300, 2359, 0.0]]
         multiple_day_2_api_rtn = [[0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 600, 1.07008760951], [600, 600, 0.0]]
@@ -207,7 +209,6 @@ class TestCalculator(unittest.TestCase):
                                                                     initial_state=0,
                                                                     final_state=100,
                                                                     capacity=20, power=2),multiple_day_1_api_rtn +multiple_day_2_api_rtn )
-
 
     @patch('app.calculator.requests.get')
     def test_time_calculation(self,mock):
