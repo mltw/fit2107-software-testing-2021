@@ -637,3 +637,19 @@ class TestCalculator(unittest.TestCase):
 
         # please use string
         self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", 100))
+    
+    @patch('app.calculator.requests.get')
+    def test_get_duration(self, mock):
+        self.calculator = Calculator(5000, "14/09/2021")
+
+        # test with start_time and end_time both not having hour components and end_time minute component < start_time minute
+        # component
+        self.assertEqual(self.calculator.get_duration("59", "1"), 2 / 60)
+
+        # test with start_time and end_time both having single digit hour components end_time minute component >= start_time
+        # minute component
+        self.assertEqual(self.calculator.get_duration("125", "240"), 1.25)
+
+        # test with start_time and end_time both having double digit hour components end_time minute component >= start_time
+        # minute component
+        self.assertEqual(self.calculator.get_duration("1205", "2320"), 11.25)
