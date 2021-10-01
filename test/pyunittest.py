@@ -148,8 +148,6 @@ class TestCalculator(unittest.TestCase):
                                                               initial_state=0, final_state=37.5,
                                                               capacity=4, power=2.0)
 
-
-    @patch('app.calculator.requests.get')
     @patch('app.calculator.requests.get')
     def test_calculate_solar_energy_new_single_day(self,mock_1):
         self.calculator = Calculator(7250, "22/02/2021")
