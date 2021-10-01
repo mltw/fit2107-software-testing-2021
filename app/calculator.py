@@ -118,7 +118,9 @@ class Calculator():
                 current_datetime += timedelta(minutes=30)
                 current_power += 1
             # print("tc 2 : ",total_cost,partial_initial_state,partial_final_state)
+            print(temp_total_time, temp_total_time >0)
             if temp_total_time > 0 :
+                print("start")
                 total_minute = round(temp_total_time*60,0)
                 current_datetime += timedelta(minutes=total_minute)
                 price = base_price*0.5 if not self.is_peak_v2(current_datetime) else base_price
@@ -127,6 +129,7 @@ class Calculator():
                 partial_final_state = float(final_state)
                 total_power = max(((partial_final_state-partial_initial_state)/100)* float(capacity) ,0)
                 total_cost += total_power* price / 100 * surcharge
+                print("end")
             return round(total_cost,2)
 
     # you may add more parameters if needed, you may modify the formula also.
