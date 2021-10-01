@@ -559,6 +559,15 @@ class Calculator():
         :return             : an array containing arrays that represent the solar energy generated for each hour from start_time
                               to end_time
         """
+        max_date_allowed = datetime.now() - timedelta(days=2)
+        if str(type(start_date)) != "<class 'str'>" or str(type(start_time)) != "<class 'str'>" or str(type(end_time)) != "<class 'str'>":
+            raise ValueError("please use string")
+        current_date = datetime.strptime(start_date, '%d/%m/%Y')
+        start_time_test = datetime.strptime(start_time,'%H:%M')
+        end_time_test = datetime.strptime(end_time,'%H:%M')
+        assert (current_date < max_date_allowed)
+        assert (start_time_test < end_time_test)
+
         # get solar hour/insolation (si) and daylight length (dl)
         si = self.get_sun_hour(start_date)
         dl = self.get_day_light_length(start_date)
