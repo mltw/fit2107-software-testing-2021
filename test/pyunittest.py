@@ -9,136 +9,139 @@ class TestCalculator(unittest.TestCase):
 
 
     @patch('app.calculator.requests.get')
-    def test_cost_v1(self,mock_2 ):
+    def test_cost_v1(self, mock_2):
         self.calculator = Calculator(5000, "14/09/2021")
-        # start time before peak, end time before peak, single day ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,20,50,350,"14/09/2021","05:30"),5.5)
 
-        # start time before peak, end time before off peak, single day, multiple hour , 2.53 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"14/09/2021","05:30"),4.2)
+        # start_time before peak, end_time before peak, single day
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 20, 50, 350, "14/09/2021", "05:30"), 5.5)
 
-        # start time after 6, end time before 18, single day, within single hour 22.0 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"14/09/2021","06:10"),22.0)
+        # start_time before peak, end_time before off peak, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 10, 7.2, "14/09/2021", "05:30"), 4.2)
 
-        # start time after 6, end time before 18, single day, multiple hours,
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"14/09/2021","06:10"),4.4)
+        # start_time after 6, end_time before 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 50,350, "14/09/2021", "06:10"), 22.0)
 
-        # start time after 18, end time after 18, single day, single hour,19.16
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"14/09/2021","17:55"),19.33)
+        # start_time after 6, end_time before 18, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 10, 7.2, "14/09/2021", "06:10"), 4.4)
 
-        # start time after 18, end time before 18, single day, multiple hours,2,2, weekday
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+        # start_time after 18, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 50, 350, "14/09/2021", "17:55"), 19.33)
 
-        # starttime after 18, endtime after 18, single day, single hour, weekday
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"14/09/2021","19:00"),11)
+        # start_time after 18, end_time before 18, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 10, 7.2, "14/09/2021", "19:00"), 2.2)
 
-        # starttime after 18, endtime after 18, single day, single hour,10.24 , weekend
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+        # start_time after 18, end_time after 18, single day, single hour, weekday
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 50, 350, "14/09/2021", "19:00"), 11)
 
-        # starttime after 18, endtime next day before 6am , multiple hour, weekend
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+        # start_time after 18, end_time after 18, single day, single hour, weekend
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 50, 350, "12/09/2021", "23:55"), 10.24)
 
-        # starttime after 18, endtime next day before 6am , multiple hour, weekend
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"12/09/2022","23:55"),'-')
+        # start_time after 18, end_time next day before 6am, multiple hours, weekend
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
 
-        # Branch 121 --> 130 (means multiple hour, but no last hour)
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,150,10,50,"12/09/2021","01:00"),7.5)
+        # start_time after 18, end_time next day before 6am, multiple hours, weekend, future date
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 40, 10, 7.2, "12/09/2022", "23:55"), '-')
+
+        # multiple hours, but no last hour
+        self.assertEqual(self.calculator.cost_calculation_v1(0, 100, 150, 10, 50, "12/09/2021", "01:00"), 7.5)
 
     @mock.patch.object(Calculator, 'calculate_solar_energy_new', return_value=[])
     @patch('app.calculator.requests.get')
-    def test_cost_v2(self,mock_2 ,mock_calculate_solar_energy_new):
+    def test_cost_v2(self, mock_2, mock_calculate_solar_energy_new):
         self.calculator = Calculator(5000, "14/09/2021")
+        
         mock_calculate_solar_energy_new.return_value = [[530, 533, 0.0]]
-        # start time before peak, end time before peak, single day ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,20,50,350,"14/09/2021","05:30"),5.5)
+        # start_time before peak, end_time before peak, single day
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 20, 50, 350, "14/09/2021", "05:30"), 5.5)
 
         mock_calculate_solar_energy_new.return_value = [[530, 600, 0.0], [600, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1103, 0.1675599435825106]]
-        # start time before peak, end time before off peak, single day, multiple hour , 2.53 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","05:30"),2.53)
+        # start_time before peak, end_time before off peak, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "14/09/2021", "05:30"), 2.53)
 
         mock_calculate_solar_energy_new.return_value = [[610, 616, 0.0]]
-        # start time after 6, end time before 18, single day, within single hour 22.0 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","06:10"),22.0)
+        # start_time after 6, end_time before 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 50, 350, "14/09/2021", "06:10"), 22.0)
 
         mock_calculate_solar_energy_new.return_value = [[610, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1143, 2.4016925246826517]]
-        # starttime after 6, endtime before 18, single day, multiple hours, 2.38 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","06:10"),2.49)
+        # start_time after 6, end_time before 18, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "14/09/2021", "06:10"), 2.49)
 
         mock_calculate_solar_energy_new.return_value =[[1755, 1800, 0.2708039492242595], [1800, 1801, 0.05246826516220028]]
-        # starttime after 6, endtime after 18, single day, single hour,19.16
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","17:55"),19.17)
+        # start_time after 6, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 50, 350, "14/09/2021", "17:55"), 19.17)
 
-        # starttime after 18, endtime before 18, single day, multiple hours,2,2
+        # start_time after 18, end_time before 18, single day, multiple hours
         mock_calculate_solar_energy_new.return_value = [[1900, 2000, 0.0], [2000, 2100, 0.0], [2100, 2200, 0.0], [2200, 2300, 0.0], [2300, 2359, 0.0], [0, 33, 0.0]]
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "14/09/2021", "19:00"), 2.2)
 
         mock_calculate_solar_energy_new.return_value = [[1900, 1906, 0.0]]
-        # starttime after 18, endtime after 18, single day, single hour,11
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"14/09/2021","19:00"),11)
+        # start_time after 18, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 50, 350, "14/09/2021", "19:00"), 11)
 
         mock_calculate_solar_energy_new.return_value = [[2355, 2359, 0.0], [0, 1, 0.0]]
-        # starttime after 18, endtime after 18, single day, single hour,10.24
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+        # start_time after 18, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 50, 350, "12/09/2021", "23:55"), 10.24)
 
         mock_calculate_solar_energy_new.return_value = [[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]
-        # starttime after 18, endtime next day , multiple hour
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+        # start_time after 18, end_time next day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
 
-        # starttime after 18, endtime next day before 6am , multiple hour, weekend
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2022","23:55"),'-')
+        # start_time after 18, end_time next day before 6am, multiple hours, weekend, future date
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 40, 10, 7.2, "12/09/2022","23:55"), '-')
 
         mock_calculate_solar_energy_new.return_value = [[100, 200, 0.0],[200, 300, 0.0],[300, 400, 0.0]]
-        # Branch 121 --> 130 (means multiple hour, but no last hour)
-        self.assertEqual(self.calculator.cost_calculation_v2(0,100,150,10,50,"12/09/2021","01:00"),7.5)
+        # multiple hours, but no last hour
+        self.assertEqual(self.calculator.cost_calculation_v2(0, 100, 150, 10, 50, "12/09/2021", "01:00"), 7.5)
 
     @mock.patch.object(Calculator, 'calculate_solar_energy_new_w_cc', return_value=[])
     @patch('app.calculator.requests.get')
-    def test_cost_v3(self,mock_2 ,mock_calculate_solar_energy_new_w_cc):
+    def test_cost_v3(self, mock_2, mock_calculate_solar_energy_new_w_cc):
         self.calculator = Calculator(5000, "14/09/2021")
+        
         mock_calculate_solar_energy_new_w_cc.return_value = [[[530, 533, 0.0]]]
-        # start time before peak, end time before peak, single day ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,20,50,350,"14/09/2021","05:30"),5.5)
+        # start_time before peak, end_time before peak, single day
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 20, 50, 350, "14/09/2021", "05:30"), 5.5)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[530, 600, 0.0], [600, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1103, 0.1675599435825106]]]
-        # start time before peak, end time before off peak, single day, multiple hour , 2.53 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"14/09/2021","05:30"),2.53)
+        # start_time before peak, end_time before off peak, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "14/09/2021", "05:30"), 2.53)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[610, 616, 0.0]]]
-        # start time after 6, end time before 18, single day, within single hour 22.0 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"14/09/2021","06:10"),22.0)
+        # start_time after 6, end_time before 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 50, 350, "14/09/2021", "06:10"), 22.0)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[610, 700, 2.134837799717913], [700, 800, 3.0803949224259526], [800, 900, 3.1819464033850493], [900, 1000, 3.283497884344147], [1000, 1100, 3.3173483779971793], [1100, 1143, 2.4016925246826517]]]
-        # starttime after 6, endtime before 18, single day, multiple hours, 2.38 ---Passed
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"14/09/2021","06:10"),2.49)
+        # start_time after 6, end_time before 18, single day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "14/09/2021", "06:10"), 2.49)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[1755, 1800, 0.2708039492242595], [1800, 1801, 0.05246826516220028]]]
-        # starttime after 6, endtime after 18, single day, single hour,19.16
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"14/09/2021","17:55"),19.17)
+        # start_time after 6, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 50, 350, "14/09/2021", "17:55"), 19.17)
 
-        # starttime after 18, endtime before 18, single day, multiple hours,2,2
+        # start_time after 18, end_time before 18, single day, multiple hours
         mock_calculate_solar_energy_new_w_cc.return_value = [[[1900, 2000, 0.0], [2000, 2100, 0.0], [2100, 2200, 0.0], [2200, 2300, 0.0], [2300, 2359, 0.0], [0, 33, 0.0]]]
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"14/09/2021","19:00"),2.2)
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "14/09/2021", "19:00"), 2.2)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[1900, 1906, 0.0]]]
-        # starttime after 18, endtime after 18, single day, single hour,11
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"14/09/2021","19:00"),11)
+        # start_time after 18, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 50, 350, "14/09/2021", "19:00"), 11)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 1, 0.0]]]
-        # starttime after 18, endtime after 18, single day, single hour,10.24
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,50,350,"12/09/2021","23:55"),10.24)
+        # start_time after 18, end_time after 18, single day, single hour
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 50, 350, "12/09/2021", "23:55"), 10.24)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]]
-        # starttime after 18, endtime next day , multiple hour
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
+        # start_time after 18, end_time next day, multiple hours
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "12/09/2021", "23:55"), 2.20)
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]], [[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]], [[2355, 2359, 0.0], [0, 100, 0.0], [100, 200, 0.0], [200, 300, 0.0], [300, 400, 0.0], [400, 500, 0.0], [500, 528, 0.0]]]
-        # starttime after 18, endtime next day , multiple hour , in the future
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"12/09/2022","23:55"),2.20)
+        # start_time after 18, end_time next day, multiple hours, future date
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 40, 10, 7.2, "12/09/2022", "23:55"), 2.20)
 
 
         mock_calculate_solar_energy_new_w_cc.return_value = [[[100, 200, 0.0],[200, 300, 0.0],[300, 400, 0.0]]]
-        # Branch 121 --> 130 (means multiple hour, but no last hour)
-        self.assertEqual(self.calculator.cost_calculation_v3(0,100,150,10,50,"12/09/2021","01:00"),7.5)
+        # multiple hours, but no last hour
+        self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 150, 10, 50, "12/09/2021", "01:00"), 7.5)
 
     @patch('app.calculator.requests.get')
     def test_calculate_solar_energy_new_single_day(self,mock_1):
