@@ -324,7 +324,7 @@ class TestCalculator(unittest.TestCase):
                                 'windspeedKph': 3, 'windDirectionDeg': 120, 'windDirectionCompass': 'ESE',
                                 'precipitationMm': 0, 'humidityPct': 90, 'visibilityKm': 6, 'pressureMb': 1023}
                            ]}
-                           
+
         mock1.return_value.json.return_value = json_output2020
 
         # Current_date <= max_date_allowed, charging time within a day
@@ -336,8 +336,9 @@ class TestCalculator(unittest.TestCase):
         )
 
     def test_calculate_solar_energy_new_w_cc_wo_mocking(self):
-        # current_date <= max_date_allowed, charging time not within a day
         self.calculator = Calculator(7250, "22/02/2021", "Launceston")
+
+        # current_date <= max_date_allowed, charging time not within a day
         self.assertEqual(
             [[[2300, 2359, 0.0], [0000, 100, 0.0], [100,100,0.0]]],
             self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2021", start_time="23:00",
@@ -352,7 +353,6 @@ class TestCalculator(unittest.TestCase):
                 [[1700, 1800, 3.55810473815], [1800, 1800, 0]],
                 [[1700, 1800, 4.9], [1800, 1800, 0.0]],
                 [[1700, 1800, 3.25180572852], [1800, 1800, 0.0]],
-
             ],
             self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:00",
                                                             initial_state=0, final_state=50,
@@ -366,7 +366,6 @@ class TestCalculator(unittest.TestCase):
                 [[1700, 1800, 5.04105378705], [1800, 1800, 0]],
                 [[1700, 1800, 5.21097694841], [1800, 1800, 0.0]],
                 [[1700, 1800, 4.15850713502], [1800, 1800, 0.0]],
-
             ],
             self.calculator.calculate_solar_energy_new_w_cc(start_date="25/12/2022", start_time="17:00",
                                                             initial_state=0, final_state=50,
