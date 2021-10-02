@@ -216,7 +216,7 @@ class TestCalculator(unittest.TestCase):
                                                                     capacity=20, power=2), multiple_day_1_api_rtn + multiple_day_2_api_rtn)
 
     @patch('app.calculator.requests.get')
-    def test_calculate_solar_energy_new_w_cc(self,mock1):
+    def test_calculate_solar_energy_new_w_cc(self, mock1):
         self.calculator = Calculator(7250, "22/02/2020", "Launceston")
         self.calculator.location_id = "5998b29a-8e3d-4c1e-857c-b5dce80eea6d"
 
@@ -324,6 +324,7 @@ class TestCalculator(unittest.TestCase):
                                 'windspeedKph': 3, 'windDirectionDeg': 120, 'windDirectionCompass': 'ESE',
                                 'precipitationMm': 0, 'humidityPct': 90, 'visibilityKm': 6, 'pressureMb': 1023}
                            ]}
+                           
         mock1.return_value.json.return_value = json_output2020
 
         # Current_date <= max_date_allowed, charging time within a day
