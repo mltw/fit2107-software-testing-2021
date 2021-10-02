@@ -99,14 +99,26 @@ class Calculator():
         hour_difference = minute_difference / 60
         
         if total_time <= hour_difference:   # charging period within the first hour
-            price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            if not self.is_peak_v2(current_datetime) :
+                price = base_price * 0.5
+            else :
+                price = base_price
+            if self.is_holiday_v2(current_datetime) :
+                surcharge = surcharge_factor
+            else :
+                surcharge = 1
             total_power = max((((float(final_state) - float(initial_state)) / 100) * float(capacity)), 0)
             total_cost = total_power * price / 100 * surcharge
             return total_cost
         else:
-            price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            if not self.is_peak_v2(current_datetime) :
+                price = base_price * 0.5
+            else :
+                price = base_price
+            if self.is_holiday_v2(current_datetime) :
+                surcharge = surcharge_factor
+            else :
+                surcharge = 1
             partial_initial_state = float(initial_state)
             partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state)) / total_time) * hour_difference
             total_power = max(((partial_final_state - partial_initial_state) / 100) * float(capacity), 0)
@@ -117,8 +129,14 @@ class Calculator():
             while temp_total_time >= 1:
                 temp_total_time -= 1
                 current_datetime += timedelta(minutes=30)
-                price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                if not self.is_peak_v2(current_datetime) :
+                    price = base_price * 0.5
+                else :
+                    price = base_price
+                if self.is_holiday_v2(current_datetime) :
+                    surcharge = surcharge_factor
+                else :
+                    surcharge = 1
                 partial_initial_state = partial_final_state
                 partial_final_state += ((float(final_state) - float(initial_state)) / total_time)
                 total_power = max(((partial_final_state - partial_initial_state) / 100) * float(capacity), 0)
@@ -128,8 +146,14 @@ class Calculator():
             if temp_total_time > 0: # cost calculations for the last hour of charging
                 total_minute = round(temp_total_time * 60, 0)
                 current_datetime += timedelta(minutes=total_minute)
-                price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                if not self.is_peak_v2(current_datetime) :
+                    price = base_price * 0.5
+                else :
+                    price = base_price
+                if self.is_holiday_v2(current_datetime) :
+                    surcharge = surcharge_factor
+                else :
+                    surcharge = 1
                 partial_initial_state = partial_final_state
                 partial_final_state = float(final_state)
                 total_power = max(((partial_final_state - partial_initial_state)/100) * float(capacity), 0)
