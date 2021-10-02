@@ -140,12 +140,6 @@ class TestCalculator(unittest.TestCase):
         # Branch 121 --> 130 (means multiple hour, but no last hour)
         self.assertEqual(self.calculator.cost_calculation_v3(0,100,150,10,50,"12/09/2021","01:00"),7.5)
 
-    def test_calculate_solar_energy_new_w_cc(self):
-        self.calculator = Calculator(7250, "22/02/2022")
-        self.calculator.calculate_solar_energy_new_w_cc(start_date="22/02/2022", start_time="17:30",
-                                                              initial_state=0, final_state=37.5,
-                                                              capacity=4, power=2.0)
-
     @patch('app.calculator.requests.get')
     def test_calculate_solar_energy_new_single_day(self,mock_1):
         self.calculator = Calculator(7250, "22/02/2021")
