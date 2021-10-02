@@ -76,7 +76,7 @@ class Calculator():
 
         if current_date <= max_date_allowed:
             pass
-        else:   # requirement 2 can't take in future dates, so just return a '-'
+        else:   # requirement 1 can't take in future dates, so just return a '-'
             return '-'
         
         # convert the date and time strings into arrays before generating a datetime object from them
