@@ -144,10 +144,10 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.cost_calculation_v3(0, 100, 150, 10, 50, "12/09/2021", "01:00"), 7.5)
 
     @patch('app.calculator.requests.get')
-    def test_calculate_solar_energy_new_single_day(self,mock_1):
+    def test_calculate_solar_energy_new_single_day(self, mock_1):
         self.calculator = Calculator(7250, "22/02/2021")
         self.calculator.location_id = "22d72902-b72f-4ca0-a522-4dbfb77a7b78"
-        single_day_api_rtn = {'date': '2021-02-22', 'sunrise': '05:44:00', 'sunset': '19:06:00', 'moonrise': '15:43:00', 'moonset': '00:01:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 73, 'minTempC': 9, 'maxTempC': 21, 'avgTempC': 17, 'sunHours': 5.3, 'uvIndex': 5, 'location': {'id': '22d72902-b72f-4ca0-a522-4dbfb77a7b78', 'postcode': '7250', 'name': 'BLACKSTONE HEIGHTS', 'state': 'TAS', 'latitude': '-41.46', 'longitude': '147.0820001', 'distanceToNearestWeatherStationMetres': 5607.391317385195, 'nearestWeatherStation': {'name': 'LAUNCESTON (TI TREE BEND)', 'state': 'TAS', 'latitude': '-41.4194', 'longitude': '147.1219'}}, 'hourlyWeatherHistory': [
+        mock_1.return_value.json.return_value = {'date': '2021-02-22', 'sunrise': '05:44:00', 'sunset': '19:06:00', 'moonrise': '15:43:00', 'moonset': '00:01:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 73, 'minTempC': 9, 'maxTempC': 21, 'avgTempC': 17, 'sunHours': 5.3, 'uvIndex': 5, 'location': {'id': '22d72902-b72f-4ca0-a522-4dbfb77a7b78', 'postcode': '7250', 'name': 'BLACKSTONE HEIGHTS', 'state': 'TAS', 'latitude': '-41.46', 'longitude': '147.0820001', 'distanceToNearestWeatherStationMetres': 5607.391317385195, 'nearestWeatherStation': {'name': 'LAUNCESTON (TI TREE BEND)', 'state': 'TAS', 'latitude': '-41.4194', 'longitude': '147.1219'}}, 'hourlyWeatherHistory': [
             {'hour': 0, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 1, 'windspeedKph': 2, 'windDirectionDeg': 232, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 89, 'visibilityKm': 10, 'pressureMb': 1007},
             {'hour': 1, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 3, 'uvIndex': 1, 'windspeedKph': 2, 'windDirectionDeg': 258, 'windDirectionCompass': 'WSW', 'precipitationMm': 0, 'humidityPct': 91, 'visibilityKm': 8, 'pressureMb': 1007},
             {'hour': 2, 'tempC': 11, 'weatherDesc': 'Clear', 'cloudCoverPct': 6, 'uvIndex': 1, 'windspeedKph': 3, 'windDirectionDeg': 284, 'windDirectionCompass': 'WNW', 'precipitationMm': 0, 'humidityPct': 93, 'visibilityKm': 6, 'pressureMb': 1006},
@@ -172,28 +172,31 @@ class TestCalculator(unittest.TestCase):
             {'hour': 21, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 9, 'uvIndex': 1, 'windspeedKph': 7, 'windDirectionDeg': 217, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 60, 'visibilityKm': 10, 'pressureMb': 1012},
             {'hour': 22, 'tempC': 11, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 7, 'uvIndex': 1, 'windspeedKph': 6, 'windDirectionDeg': 212, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 64, 'visibilityKm': 10, 'pressureMb': 1012},
             {'hour': 23, 'tempC': 9, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 5, 'uvIndex': 1, 'windspeedKph': 4, 'windDirectionDeg': 207, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1012}]}
-        mock_1.return_value.json.return_value = single_day_api_rtn
+
         def s_p (hour,api):
-            sunset = datetime.datetime.strptime(api['sunset'],"%H:%M:%S")
-            sunrise = datetime.datetime.strptime(api['sunrise'],"%H:%M:%S")
+            sunset = datetime.datetime.strptime(api['sunset'], "%H:%M:%S")
+            sunrise = datetime.datetime.strptime(api['sunrise'], "%H:%M:%S")
             if sunset.minute < sunrise.minute:
                 sunset -= timedelta(hours=1)
-                dl = (sunset.hour - sunrise.hour) + (sunset.minute + 60 - sunrise.minute)/60
+                dl = (sunset.hour - sunrise.hour) + (sunset.minute + 60 - sunrise.minute) / 60
             else :
-                dl = (sunset.hour - sunrise.hour) + (sunset.minute - sunrise.minute)/60
-            return round(api['sunHours']*(hour/dl)*50*0.20,11)
+                dl = (sunset.hour - sunrise.hour) + (sunset.minute - sunrise.minute) / 60
+
+            return round(api['sunHours'] * (hour / dl) * 50 * 0.20, 11)
+
         # single day
         self.assertEqual(self.calculator.calculate_solar_energy_new(start_date="22/02/2021",
                                                         start_time="10:00",
                                                         initial_state=0,
                                                         final_state=100,
-                                                        capacity=20, power=2),[[1000, 1100, s_p(1,single_day_api_rtn)], [1100, 1200, s_p(1,mock_1.return_value.json())], [1200, 1300, s_p(1,mock_1.return_value.json())], [1300, 1400, s_p(1,mock_1.return_value.json())], [1400, 1500, s_p(1,mock_1.return_value.json())], [1500, 1600, s_p(1,mock_1.return_value.json())], [1600, 1700, s_p(1,mock_1.return_value.json())], [1700, 1800, s_p(1,mock_1.return_value.json())], [1800, 1900, s_p(1,mock_1.return_value.json())], [1900, 2000, s_p(0.1,mock_1.return_value.json())], [2000, 2000, 0.0]]  )
+                                                        capacity=20, power=2), [[1000, 1100, s_p(1, mock_1.return_value.json())], [1100, 1200, s_p(1, mock_1.return_value.json())], [1200, 1300, s_p(1, mock_1.return_value.json())], [1300, 1400, s_p(1, mock_1.return_value.json())], [1400, 1500, s_p(1, mock_1.return_value.json())], [1500, 1600, s_p(1, mock_1.return_value.json())], [1600, 1700, s_p(1, mock_1.return_value.json())], [1700, 1800, s_p(1, mock_1.return_value.json())], [1800, 1900, s_p(1, mock_1.return_value.json())], [1900, 2000, s_p(0.1, mock_1.return_value.json())], [2000, 2000, 0.0]])
+        
         # future date
-        self.assertRaises(AssertionError,lambda : self.calculator.calculate_solar_energy_new(start_date="22/02/2022",
+        self.assertRaises(AssertionError, lambda: self.calculator.calculate_solar_energy_new(start_date="22/02/2022",
                                                                     start_time="10:00",
                                                                     initial_state=0,
                                                                     final_state=100,
-                                                                    capacity=20, power=2) )
+                                                                    capacity=20, power=2))
 
     @patch('app.calculator.requests.get')
     @mock.patch.object(Calculator, 'calculate_solar_energy_within_a_day_by_hour', return_value=[])
