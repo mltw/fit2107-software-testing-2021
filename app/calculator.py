@@ -18,8 +18,6 @@ class Calculator():
         self.location_id = -1
         # find the correct location's id
         for i in range(len(self.location_data)):
-            # print(self.location_data[i]["name"].lower())
-            # print(self.location_data[i]["name"].lower() == location_name.lower())
             if self.location_data[i]["name"].lower() == location_name.lower():
                 self.location_id = self.location_data[i]['id']
                 break
@@ -28,13 +26,13 @@ class Calculator():
         # if the user input location name is invalid, just take the first location
         if self.location_id == -1:
             self.location_id = self.location_data[0]['id']
-        # print(self.location_id)
+
         # ----------------------------------
+        # since the API can only handle dates up to current date - 2 days, get the closest reference date first
         max_date_allowed = datetime.now() - timedelta(days=2)
 
         current_date = datetime.strptime(date, '%d/%m/%Y')
 
-        # since the API can only handle dates up to current date - 2 days, get the closest reference date first
         if current_date <= max_date_allowed:
             date_time_obj = current_date
         else:
@@ -48,17 +46,13 @@ class Calculator():
             else:
                 date_time_obj = ref_date_per_year - relativedelta(years=1)
         # ----------------------------------
-
-        # date_time_obj = datetime.strptime(date, '%d/%m/%Y')
         month = str(date_time_obj.month)
         if len(month) != 2 :
             month = "0" + month
         day = str(date_time_obj.day)
-        if len(day)!=2:
+        if len(day) != 2:
             day = "0" + day
-        # new_date = "2020" + "-" + "02" + "-" + "22"
         new_date = str(date_time_obj.year) + "-" + month + "-" + day
-        # print("new_date", new_date)
         self.weather_PARAMS = {'location': self.location_id, 'date': new_date}
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
@@ -343,7 +337,6 @@ class Calculator():
         time = (float(final_state) - float(initial_state)) / 100 * float(capacity) / power
         return round(time, 2)
 
-    # you may create some new methods at your convenience, or modify these methods, or choose not to use them.
     def is_holiday_v2(self, start_date):
         """
         Function that determines if a given date is deemed to be a surchargable date in Australia or not
