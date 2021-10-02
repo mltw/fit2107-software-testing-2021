@@ -6,7 +6,6 @@ from datetime import time, datetime,timedelta
 from dateutil.relativedelta import relativedelta
 
 class Calculator():
-    # you can choose to initialise variables here, if needed.
 
     def __init__(self, postcode, date, location_name=""):
         location_link = "http://118.138.246.158/api/v1/location"
@@ -577,12 +576,16 @@ class Calculator():
         :return             : an array containing arrays that represent the solar energy generated for each hour from start_time
                               to end_time
         """
-        max_date_allowed = datetime.now() - timedelta(days=2)
+        # validate the input parameters
         if str(type(start_date)) != "<class 'str'>" or str(type(start_time)) != "<class 'str'>" or str(type(end_time)) != "<class 'str'>":
             raise ValueError("please use string")
+        
+        # check that the given date isn't within two days of the current date
+        # also check that the starting time is before the ending time
+        max_date_allowed = datetime.now() - timedelta(days=2)
         current_date = datetime.strptime(start_date, '%d/%m/%Y')
-        start_time_test = datetime.strptime(start_time,'%H:%M')
-        end_time_test = datetime.strptime(end_time,'%H:%M')
+        start_time_test = datetime.strptime(start_time, '%H:%M')
+        end_time_test = datetime.strptime(end_time, '%H:%M')
         assert (current_date < max_date_allowed)
         assert (start_time_test < end_time_test)
 
@@ -667,6 +670,7 @@ class Calculator():
         :return             : an array of arrays each representing the hourly solar energy values for each day elapsed during the
                               charging duration
         """
+        # check that the given date isn't within two days of the current date
         max_date_allowed = datetime.now() - timedelta(days=2)
         current_date = datetime.strptime(start_date, '%d/%m/%Y')
         assert (current_date < max_date_allowed)
@@ -728,13 +732,16 @@ class Calculator():
         :return             : an array containing arrays that represent the solar energy generated for each hour from start_time
                               to end_time
         """
-        # get solar hour/insolation (si) and daylight length (dl)
+        # validate the input parameters
         if str(type(start_date)) != "<class 'str'>" or str(type(start_time)) != "<class 'str'>" or str(type(end_time)) != "<class 'str'>":
             raise ValueError("please use string")
+        
+        # check that the given date isn't within two days of the current date
+        # also check that the starting time is before the ending time
         max_date_allowed = datetime.now() - timedelta(days=2)
         current_date = datetime.strptime(start_date, '%d/%m/%Y')
-        start_time_test = datetime.strptime(start_time,'%H:%M')
-        end_time_test = datetime.strptime(end_time,'%H:%M')
+        start_time_test = datetime.strptime(start_time, '%H:%M')
+        end_time_test = datetime.strptime(end_time, '%H:%M')
         assert (current_date < max_date_allowed)
         assert (start_time_test < end_time_test)
 
