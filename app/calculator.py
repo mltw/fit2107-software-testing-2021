@@ -56,22 +56,24 @@ class Calculator():
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
 
-    def cost_calculation_surcharge_discount(self,datetime,base_price):
+    def cost_calculation_surcharge_discount(self, datetime, base_price):
         """
-        This function calculates the final price and surcharte
-        :param datetime : the datetime object that stores both the date and time
-        :param base_price : the base price
-        :return : (final price, surcharge)
+        This function calculates the final base price to be used and surcharge value
+        :param datetime     : the datetime object that stores both the date and time
+        :param base_price   : the base price
+        :return             : (final price, surcharge)
         """
-        if not self.is_peak_v2(datetime) :
+        if not self.is_peak_v2(datetime):
             price = base_price * 0.5
-        else :
+        else:
             price = base_price
-        if self.is_holiday_v2(datetime) :
+        
+        if self.is_holiday_v2(datetime):
             surcharge = 1.1
-        else :
+        else:
             surcharge = 1
-        return (price,surcharge)
+        
+        return (price, surcharge)
 
     def cost_calculation_v1(self, initial_state, final_state, capacity, base_price, power, start_date, start_time):
         """

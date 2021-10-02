@@ -8,14 +8,16 @@ from unittest.mock import Mock, patch
 class TestCalculator(unittest.TestCase):
 
     @patch('app.calculator.requests.get')
-    def test_cost_calculation_surcharge_discount(self,mock_1):
+    def test_cost_calculation_surcharge_discount(self, mock_1):
         self.calculator = Calculator(5000, "14/09/2021")
-        peak_time_holiday = datetime.datetime(2021,9,14,10,0,0)
-        non_peak_time_non_holiday = datetime.datetime(2021,9,12,3,0,0)
+        peak_time_holiday = datetime.datetime(2021, 9, 14, 10, 0, 0)
+        non_peak_time_non_holiday = datetime.datetime(2021, 9, 12, 3, 0, 0)
+
         # Test case 1 : Test holiday (weekday), peak
-        self.assertEqual(self.calculator.cost_calculation_surcharge_discount(peak_time_holiday, 10), (10,1.1))
+        self.assertEqual(self.calculator.cost_calculation_surcharge_discount(peak_time_holiday, 10), (10, 1.1))
+        
         # Test case 2 : Test non-holiday (weekend), non_peak
-        self.assertEqual(self.calculator.cost_calculation_surcharge_discount(non_peak_time_non_holiday, 10), (5,1))
+        self.assertEqual(self.calculator.cost_calculation_surcharge_discount(non_peak_time_non_holiday, 10), (5, 1))
 
     @patch('app.calculator.requests.get')
     def test_cost_v1(self, mock_2):
