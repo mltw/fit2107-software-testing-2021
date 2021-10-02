@@ -85,11 +85,11 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2021","23:55"),2.20)
 
         # starttime after 18, endtime next day before 6am , multiple hour, weekend
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"12/09/2022","23:55"),'-')
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,40,10,7.2,"12/09/2022","23:55"),'-')
 
         mock_calculate_solar_energy_new.return_value = [[100, 200, 0.0],[200, 300, 0.0],[300, 400, 0.0]]
         # Branch 121 --> 130 (means multiple hour, but no last hour)
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,150,10,50,"12/09/2021","01:00"),7.5)
+        self.assertEqual(self.calculator.cost_calculation_v2(0,100,150,10,50,"12/09/2021","01:00"),7.5)
 
     @mock.patch.object(Calculator, 'calculate_solar_energy_new_w_cc', return_value=[])
     @patch('app.calculator.requests.get')
