@@ -135,12 +135,9 @@ class TestCalculator(unittest.TestCase):
         # starttime after 18, endtime next day , multiple hour , in the future
         self.assertEqual(self.calculator.cost_calculation_v3(0,100,40,10,7.2,"12/09/2022","23:55"),2.20)
 
-        # starttime after 18, endtime next day before 6am , multiple hour, weekend
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,40,10,7.2,"12/09/2022","23:55"),'-')
-
         mock_calculate_solar_energy_new_w_cc.return_value = [[100, 200, 0.0],[200, 300, 0.0],[300, 400, 0.0]]
         # Branch 121 --> 130 (means multiple hour, but no last hour)
-        self.assertEqual(self.calculator.cost_calculation_v1(0,100,150,10,50,"12/09/2021","01:00"),7.5)
+        self.assertEqual(self.calculator.cost_calculation_v3(0,100,150,10,50,"12/09/2021","01:00"),7.5)
 
     def test_calculate_solar_energy_new_w_cc(self):
         self.calculator = Calculator(7250, "22/02/2022")
