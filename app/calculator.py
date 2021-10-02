@@ -42,8 +42,6 @@ class Calculator():
 
             if ref_date_per_year <= current_date:
                 date_time_obj = ref_date_per_year
-            else:
-                date_time_obj = ref_date_per_year - relativedelta(years=1)
         # ----------------------------------
         month = str(date_time_obj.month)
         if len(month) != 2 :
