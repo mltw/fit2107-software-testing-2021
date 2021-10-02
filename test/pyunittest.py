@@ -592,8 +592,9 @@ class TestCalculator(unittest.TestCase):
         self.assertRaises(ValueError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour_w_cc("22/02/2021", "23:00", 100))
     
     @patch('app.calculator.requests.get')
-    def test_calculate_solar_energy_within_a_day_by_hour(self,mock_1):
+    def test_calculate_solar_energy_within_a_day_by_hour(self, mock_1):
         self.calculator = Calculator(7250, "22/02/2022")
+
         self.calculator.location_id = "22d72902-b72f-4ca0-a522-4dbfb77a7b78"
         a = {'date': '2021-02-22', 'sunrise': '05:44:00', 'sunset': '19:06:00', 'moonrise': '15:43:00', 'moonset': '00:01:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 73, 'minTempC': 9, 'maxTempC': 21, 'avgTempC': 17, 'sunHours': 5.3, 'uvIndex': 5, 'location': {'id': '22d72902-b72f-4ca0-a522-4dbfb77a7b78', 'postcode': '7250', 'name': 'BLACKSTONE HEIGHTS', 'state': 'TAS', 'latitude': '-41.46', 'longitude': '147.0820001', 'distanceToNearestWeatherStationMetres': 5607.391317385195, 'nearestWeatherStation': {'name': 'LAUNCESTON (TI TREE BEND)', 'state': 'TAS', 'latitude': '-41.4194', 'longitude': '147.1219'}}, 'hourlyWeatherHistory': [
             {'hour': 0, 'tempC': 13, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 1, 'uvIndex': 1, 'windspeedKph': 2, 'windDirectionDeg': 232, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 89, 'visibilityKm': 10, 'pressureMb': 1007},
@@ -620,49 +621,52 @@ class TestCalculator(unittest.TestCase):
             {'hour': 21, 'tempC': 12, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 9, 'uvIndex': 1, 'windspeedKph': 7, 'windDirectionDeg': 217, 'windDirectionCompass': 'SW', 'precipitationMm': 0, 'humidityPct': 60, 'visibilityKm': 10, 'pressureMb': 1012},
             {'hour': 22, 'tempC': 11, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 7, 'uvIndex': 1, 'windspeedKph': 6, 'windDirectionDeg': 212, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 64, 'visibilityKm': 10, 'pressureMb': 1012},
             {'hour': 23, 'tempC': 9, 'weatherDesc': 'Partly cloudy', 'cloudCoverPct': 5, 'uvIndex': 1, 'windspeedKph': 4, 'windDirectionDeg': 207, 'windDirectionCompass': 'SSW', 'precipitationMm': 0, 'humidityPct': 68, 'visibilityKm': 10, 'pressureMb': 1012}]}
+        
         mock_1.return_value.json.return_value = a
-        # Start time between sunrise time and sunset time, end time after sunset time
-        def s_p (hour):
-            sunset = datetime.datetime.strptime(a['sunset'],"%H:%M:%S")
-            sunrise = datetime.datetime.strptime(a['sunrise'],"%H:%M:%S")
+
+        def s_p(hour):
+            sunset = datetime.datetime.strptime(a['sunset'], "%H:%M:%S")
+            sunrise = datetime.datetime.strptime(a['sunrise'], "%H:%M:%S")
             if sunset.minute < sunrise.minute:
                 sunset -= timedelta(hours=1)
-                dl = (sunset.hour - sunrise.hour) + (sunset.minute + 60 - sunrise.minute)/60
+                dl = (sunset.hour - sunrise.hour) + (sunset.minute + 60 - sunrise.minute) / 60
             else :
-                dl = (sunset.hour - sunrise.hour) + (sunset.minute - sunrise.minute)/60
-            return round(a['sunHours']*(hour/dl)*50*0.20,11)
+                dl = (sunset.hour - sunrise.hour) + (sunset.minute - sunrise.minute) / 60
+            
+            return round(a['sunHours'] * (hour / dl) * 50 * 0.20, 11)
 
-        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "10:00", "20:00"),[[1000, 1100, s_p(1)], [1100, 1200, s_p(1)], [1200, 1300, s_p(1)], [1300, 1400, s_p(1)], [1400, 1500, s_p(1)], [1500, 1600, s_p(1)], [1600, 1700, s_p(1)], [1700, 1800, s_p(1)], [1800, 1900, s_p(1)], [1900, 2000, s_p(0.1)], [2000, 2000, 0.0]])
+        # start_time between sunrise time and sunset time, end_time after sunset time
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "10:00", "20:00"), [[1000, 1100, s_p(1)], [1100, 1200, s_p(1)], [1200, 1300, s_p(1)], [1300, 1400, s_p(1)], [1400, 1500, s_p(1)], [1500, 1600, s_p(1)], [1600, 1700, s_p(1)], [1700, 1800, s_p(1)], [1800, 1900, s_p(1)], [1900, 2000, s_p(0.1)], [2000, 2000, 0.0]])
 
-        # Start time before sunrise time, end time before sunrise time
-        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "03:00", "05:00"),[[300, 400, s_p(0)], [400, 500, s_p(0)], [500, 500, 0.0]])
+        # start_time before sunrise time, end_time before sunrise time
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "03:00", "05:00"), [[300, 400, s_p(0)], [400, 500, s_p(0)], [500, 500, 0.0]])
 
-        # Start time after sunset time
-        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "20:00", "23:00"),[[2000, 2100, s_p(0)], [2100, 2200, s_p(0)], [2200, 2300, s_p(0)], [2300, 2300, 0.0]])
+        # start_time after sunset time
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "20:00", "23:00"), [[2000, 2100, s_p(0)], [2100, 2200, s_p(0)], [2200, 2300, s_p(0)], [2300, 2300, 0.0]])
 
-        # Start time before sunrise time, end time after sunset
-        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "05:00", "20:00"),[[500, 600, s_p(16/60)], [600, 700, s_p(1)], [700, 800, s_p(1)], [800, 900, s_p(1)], [900, 1000, s_p(1)], [1000, 1100, s_p(1)], [1100, 1200, s_p(1)], [1200, 1300,s_p(1)], [1300, 1400, s_p(1)], [1400, 1500, s_p(1)], [1500, 1600, s_p(1)], [1600, 1700, s_p(1)], [1700, 1800, s_p(1)], [1800, 1900,s_p(1)], [1900, 2000, s_p(0.1)], [2000, 2000, 0.0]])
+        # start_time before sunrise time, end_time after sunset
+        self.assertEqual(self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "05:00", "20:00"), [[500, 600, s_p(16/60)], [600, 700, s_p(1)], [700, 800, s_p(1)], [800, 900, s_p(1)], [900, 1000, s_p(1)], [1000, 1100, s_p(1)], [1100, 1200, s_p(1)], [1200, 1300,s_p(1)], [1300, 1400, s_p(1)], [1400, 1500, s_p(1)], [1500, 1600, s_p(1)], [1600, 1700, s_p(1)], [1700, 1800, s_p(1)], [1800, 1900,s_p(1)], [1900, 2000, s_p(0.1)], [2000, 2000, 0.0]])
 
         # future date
-        self.assertRaises(AssertionError,lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "05:00", "20:00") )
+        self.assertRaises(AssertionError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "05:00", "20:00") )
 
-        # False data start date
-        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("abc","05:00", "20:00"))
+        # invalid start_date
+        self.assertRaises(ValueError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("abc", "05:00", "20:00"))
 
-        # False data start time
-        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "abc" , "20:00"))
+        # invalid start_time
+        self.assertRaises(ValueError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "abc", "20:00"))
 
-        # False data end time
-        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2023", "05:00" , "122313"))
+        # invalid end_time
+        self.assertRaises(ValueError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "05:00", "122313"))
 
-        # wrong format for time
-        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "25:00", "10:00"))
+        # incorrect format for start_time
+        self.assertRaises(ValueError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "25:00", "10:00"))
 
-        # start time more than end time
-        self.assertRaises(AssertionError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", "22:00"))
+        # end_time < start_time
+        self.assertRaises(AssertionError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", "22:00"))
 
-        # please use string
-        self.assertRaises(ValueError, lambda : self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", 100))
+        # non-string input
+        self.assertRaises(ValueError, lambda: self.calculator.calculate_solar_energy_within_a_day_by_hour("22/02/2021", "23:00", 100))
     
     @patch('app.calculator.requests.get')
     def test_get_duration(self, mock):
