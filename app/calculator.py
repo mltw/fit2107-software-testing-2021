@@ -625,8 +625,6 @@ class Calculator():
             elif start_time_temp < sr:
                 if ss >= end_time_temp >= sr:
                     du = self.get_duration(str(sr), str(end_time_temp))
-                elif end_time_temp > ss:
-                    du = self.get_duration(str(sr), str(ss))
                 else:   # period exists before sunrise
                     du = 0
             else: # start_time > ss
@@ -787,8 +785,6 @@ class Calculator():
             elif start_time_temp < sr:
                 if ss >= end_time_temp >= sr:
                     du = self.get_duration(str(sr), str(end_time_temp))
-                elif end_time_temp > ss:
-                    du = self.get_duration(str(sr), str(ss))
                 else:   # charging period before sunrise
                     du = 0
             else:   # start_time > ss

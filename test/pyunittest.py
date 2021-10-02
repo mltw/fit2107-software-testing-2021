@@ -523,7 +523,7 @@ class TestCalculator(unittest.TestCase):
 
     @patch('app.calculator.requests.get')
     def test_calculate_solar_energy_within_a_day_by_hour_w_cc(self, mock_1):
-        self.calculator = Calculator(7250, "22/02/2022")
+        self.calculator = Calculator(7250, "22/12/2022")
 
         self.calculator.location_id = "22d72902-b72f-4ca0-a522-4dbfb77a7b78"
         a = {'date': '2021-02-22', 'sunrise': '05:44:00', 'sunset': '19:06:00', 'moonrise': '15:43:00', 'moonset': '00:01:00', 'moonPhase': 'Waxing Gibbous', 'moonIlluminationPct': 73, 'minTempC': 9, 'maxTempC': 21, 'avgTempC': 17, 'sunHours': 5.3, 'uvIndex': 5, 'location': {'id': '22d72902-b72f-4ca0-a522-4dbfb77a7b78', 'postcode': '7250', 'name': 'BLACKSTONE HEIGHTS', 'state': 'TAS', 'latitude': '-41.46', 'longitude': '147.0820001', 'distanceToNearestWeatherStationMetres': 5607.391317385195, 'nearestWeatherStation': {'name': 'LAUNCESTON (TI TREE BEND)', 'state': 'TAS', 'latitude': '-41.4194', 'longitude': '147.1219'}}, 'hourlyWeatherHistory': [
