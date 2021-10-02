@@ -57,6 +57,23 @@ class Calculator():
         self.weather_r = requests.get(url=self.weather_link, params=self.weather_PARAMS)
         self.weather_data = self.weather_r.json()
 
+    def cost_calculation_surcharge_discount(self,datetime,base_price):
+        """
+        This function calculates the final price and surcharte
+        :param datetime : the datetime object that stores both the date and time
+        :param base_price : the base price
+        :return : (final price, surcharge)
+        """
+        if not self.is_peak_v2(datetime) :
+            price = base_price * 0.5
+        else :
+            price = base_price
+        if self.is_holiday_v2(datetime) :
+            surcharge = 1.1
+        else :
+            surcharge = 1
+        return (price,surcharge)
+
     def cost_calculation_v1(self, initial_state, final_state, capacity, base_price, power, start_date, start_time):
         """
         This function calculates the cost of charging the battery from the initial_state to the final_state given its capacity,
@@ -99,26 +116,12 @@ class Calculator():
         hour_difference = minute_difference / 60
         
         if total_time <= hour_difference:   # charging period within the first hour
-            if not self.is_peak_v2(current_datetime) :
-                price = base_price * 0.5
-            else :
-                price = base_price
-            if self.is_holiday_v2(current_datetime) :
-                surcharge = surcharge_factor
-            else :
-                surcharge = 1
+            (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
             total_power = max((((float(final_state) - float(initial_state)) / 100) * float(capacity)), 0)
             total_cost = total_power * price / 100 * surcharge
             return total_cost
         else:
-            if not self.is_peak_v2(current_datetime) :
-                price = base_price * 0.5
-            else :
-                price = base_price
-            if self.is_holiday_v2(current_datetime) :
-                surcharge = surcharge_factor
-            else :
-                surcharge = 1
+            (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
             partial_initial_state = float(initial_state)
             partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state)) / total_time) * hour_difference
             total_power = max(((partial_final_state - partial_initial_state) / 100) * float(capacity), 0)
@@ -129,14 +132,7 @@ class Calculator():
             while temp_total_time >= 1:
                 temp_total_time -= 1
                 current_datetime += timedelta(minutes=30)
-                if not self.is_peak_v2(current_datetime) :
-                    price = base_price * 0.5
-                else :
-                    price = base_price
-                if self.is_holiday_v2(current_datetime) :
-                    surcharge = surcharge_factor
-                else :
-                    surcharge = 1
+                (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                 partial_initial_state = partial_final_state
                 partial_final_state += ((float(final_state) - float(initial_state)) / total_time)
                 total_power = max(((partial_final_state - partial_initial_state) / 100) * float(capacity), 0)
@@ -146,14 +142,7 @@ class Calculator():
             if temp_total_time > 0: # cost calculations for the last hour of charging
                 total_minute = round(temp_total_time * 60, 0)
                 current_datetime += timedelta(minutes=total_minute)
-                if not self.is_peak_v2(current_datetime) :
-                    price = base_price * 0.5
-                else :
-                    price = base_price
-                if self.is_holiday_v2(current_datetime) :
-                    surcharge = surcharge_factor
-                else :
-                    surcharge = 1
+                (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                 partial_initial_state = partial_final_state
                 partial_final_state = float(final_state)
                 total_power = max(((partial_final_state - partial_initial_state)/100) * float(capacity), 0)
@@ -206,8 +195,7 @@ class Calculator():
         hour_difference = minute_difference / 60
 
         if total_time <= hour_difference:   # charging period within the first hour
-            price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
             extra_power = power_list[0][2]  # solar energy generated for this particular hour
 
             # net power required to charge the battery
@@ -215,8 +203,7 @@ class Calculator():
             total_cost = total_power * price / 100 * surcharge
             return total_cost
         else:
-            price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-            surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+            (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
             partial_initial_state = float(initial_state)
             partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state)) / total_time) * hour_difference
             extra_power = power_list[0][2]  # solar energy generated for this particular hour
@@ -231,8 +218,7 @@ class Calculator():
             while temp_total_time >= 1:
                 temp_total_time -= 1
                 current_datetime += timedelta(minutes=30)
-                price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                 partial_initial_state = partial_final_state
                 partial_final_state += ((float(final_state) - float(initial_state)) / total_time)
                 extra_power= power_list[current_power][2]   # solar energy generated for this particular hour
@@ -246,8 +232,7 @@ class Calculator():
             if temp_total_time > 0: # cost calculations for the last hour of charging
                 total_minute = round(temp_total_time * 60, 0)
                 current_datetime += timedelta(minutes=total_minute)
-                price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                 partial_initial_state = partial_final_state
                 partial_final_state = float(final_state)
                 extra_power= power_list[current_power][2]   # solar energy generated for this particular hour
@@ -296,16 +281,14 @@ class Calculator():
 
         for i in range(len(power_list)):    # cost calculation for each year's start_date
             if total_time <= hour_difference:   # charging period within the first hour
-                price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                 extra_power = power_list[i][0][2]   # solar energy generated for this particular hour
 
                 # net power required to charge the battery
                 total_power = max((((float(final_state) - float(initial_state)) / 100) * float(capacity)) - extra_power, 0)
                 total_cost += total_power * price / 100 * surcharge
             else:
-                price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                 partial_initial_state = float(initial_state)
                 partial_final_state = partial_initial_state + ((float(final_state) - float(initial_state)) / total_time) * hour_difference
                 extra_power = power_list[i][0][2]   # solar energy generated for this particular hour
@@ -320,8 +303,7 @@ class Calculator():
                 while temp_total_time >= 1:
                     temp_total_time -= 1
                     current_datetime += timedelta(minutes=30)
-                    price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                    surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                    (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                     partial_initial_state = partial_final_state
                     partial_final_state += ((float(final_state) - float(initial_state)) / total_time)
                     extra_power= power_list[i][current_power][2]    # solar energy generated for this particular hour
@@ -335,8 +317,7 @@ class Calculator():
                 if temp_total_time > 0: # cost calculations for the last hour of charging
                     total_minute = round(temp_total_time * 60, 0)
                     current_datetime += timedelta(minutes=total_minute)
-                    price = base_price * 0.5 if not self.is_peak_v2(current_datetime) else base_price
-                    surcharge = surcharge_factor if self.is_holiday_v2(current_datetime) else 1
+                    (price,surcharge) = self.cost_calculation_surcharge_discount(current_datetime,base_price)
                     partial_initial_state = partial_final_state
                     partial_final_state = float(final_state)
                     extra_power= power_list[i][current_power][2]    # solar energy generated for this particular hour
